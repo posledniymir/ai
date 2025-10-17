@@ -46,7 +46,6 @@
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    /* Гарантируем, что контейнер не вылезет */
     width: 100%;
     overflow: hidden;
   }
@@ -91,13 +90,13 @@
     gap: 10px;
     margin-bottom: 10px;
     align-items: center;
-    flex-wrap: wrap; /* на случай очень узких экранов */
+    flex-wrap: wrap;
   }
 
+  /* Поля в строках услуг и ручного ввода */
   .service-select,
   .manual-name,
   .manual-type,
-  .discount-input,
   .price-input {
     background: var(--fm-input);
     color: var(--fm-text);
@@ -107,8 +106,8 @@
     font-size: 14px;
     min-height: 36px;
     height: 36px;
-    min-width: 0; /* 🔑 критически важно для iOS Safari */
-    width: 0; /* позволяет flex правильно распределять пространство */
+    min-width: 0;
+    width: 0;
   }
 
   .service-select,
@@ -139,6 +138,7 @@
     font-size: 15px;
   }
 
+  /* Скидка — отдельный стиль */
   .discount-row {
     display: flex;
     gap: 10px;
@@ -150,6 +150,20 @@
     flex: 2;
     color: var(--fm-text-secondary);
     min-width: 0;
+  }
+
+  #discount-input {
+    flex: 1;
+    background: var(--fm-input);
+    color: var(--fm-text);
+    border: 1px solid var(--fm-border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    min-height: 36px;
+    height: 36px;
+    min-width: 80px;
+    max-width: 120px;
   }
 
   .total-box {
