@@ -15,190 +15,198 @@
 
   <title>guitar_sueta</title>
   <style>
-    :root {
-      --fm-bg: #121212;
-      --fm-card: #1e1e1e;
-      --fm-block: #2a2a2a;
-      --fm-input: #2d2d2d;
-      --fm-border: #444;
-      --fm-accent: #03DAC6;
-      --fm-accent-secondary: #BB86FC;
-      --fm-text: #E0E0E0;
-      --fm-text-secondary: #AAA;
-    }
+  :root {
+    --fm-bg: #121212;
+    --fm-card: #1e1e1e;
+    --fm-block: #2a2a2a;
+    --fm-input: #2d2d2d;
+    --fm-border: #444;
+    --fm-accent: #03DAC6;
+    --fm-accent-secondary: #BB86FC;
+    --fm-text: #E0E0E0;
+    --fm-text-secondary: #AAA;
+  }
 
-    * {
-      box-sizing: border-box;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    body {
-      background-color: var(--fm-bg);
-      color: var(--fm-text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      padding: 16px;
-    }
+  body {
+    background-color: var(--fm-bg);
+    color: var(--fm-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 16px;
+  }
 
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: var(--fm-card);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--fm-card);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    /* Гарантируем, что контейнер не вылезет */
+    width: 100%;
+    overflow: hidden;
+  }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 16px;
-      color: var(--fm-accent-secondary);
-      font-size: 22px;
-    }
+  h1 {
+    text-align: center;
+    margin-bottom: 16px;
+    color: var(--fm-accent-secondary);
+    font-size: 22px;
+  }
 
-    .guitar-name-row {
-      margin-bottom: 20px;
-    }
+  .guitar-name-row {
+    margin-bottom: 20px;
+  }
 
-    .guitar-name-input {
-      width: 100%;
-      background: var(--fm-input);
-      color: var(--fm-text);
-      border: 1px solid var(--fm-border);
-      border-radius: 6px;
-      padding: 10px;
-      font-size: 15px;
-    }
+  .guitar-name-input {
+    width: 100%;
+    background: var(--fm-input);
+    color: var(--fm-text);
+    border: 1px solid var(--fm-border);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 15px;
+    min-width: 0;
+  }
 
-    .section {
-      margin-bottom: 28px; /* увеличенный отступ между блоками */
-    }
+  .section {
+    margin-bottom: 28px;
+  }
 
-    .section-title {
-      font-size: 16px;
-      margin-bottom: 14px;
-      color: var(--fm-accent);
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+  .section-title {
+    font-size: 16px;
+    margin-bottom: 14px;
+    color: var(--fm-accent);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-    .row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
+  .row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+    flex-wrap: wrap; /* на случай очень узких экранов */
+  }
 
-    .service-select,
-    .manual-name,
-    .manual-type,
-    .discount-input,
-    .price-input {
-      background: var(--fm-input);
-      color: var(--fm-text);
-      border: 1px solid var(--fm-border);
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 14px;
-      min-height: 36px;
-      height: 36px;
-    }
+  .service-select,
+  .manual-name,
+  .manual-type,
+  .discount-input,
+  .price-input {
+    background: var(--fm-input);
+    color: var(--fm-text);
+    border: 1px solid var(--fm-border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    min-height: 36px;
+    height: 36px;
+    min-width: 0; /* 🔑 критически важно для iOS Safari */
+    width: 0; /* позволяет flex правильно распределять пространство */
+  }
 
-    .service-select,
-    .manual-name {
-      flex: 2;
-    }
+  .service-select,
+  .manual-name {
+    flex: 2;
+  }
 
-    .price-input {
-      flex: 1;
-      text-align: right;
-    }
+  .price-input {
+    flex: 1;
+    text-align: right;
+  }
 
-    .manual-type {
-      flex: 1;
-      max-width: 140px;
-    }
+  .manual-type {
+    flex: 1;
+    max-width: 140px;
+  }
 
-    .add-btn {
-      width: 100%;
-      padding: 10px;
-      background: var(--fm-accent);
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin: 10px 0;
-      font-size: 15px;
-    }
+  .add-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--fm-accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px 0;
+    font-size: 15px;
+  }
 
-    .discount-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-top: 10px;
-    }
+  .discount-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
 
-    .discount-label {
-      flex: 2;
-      color: var(--fm-text-secondary);
-    }
+  .discount-label {
+    flex: 2;
+    color: var(--fm-text-secondary);
+    min-width: 0;
+  }
 
-    .total-box {
-      background: var(--fm-block);
-      padding: 14px;
-      border-radius: 10px;
-      text-align: center;
-      margin-top: 16px;
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--fm-accent);
-    }
+  .total-box {
+    background: var(--fm-block);
+    padding: 14px;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--fm-accent);
+  }
 
-    .preview-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--fm-accent-secondary);
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 16px;
-      font-size: 16px;
-    }
+  .preview-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--fm-accent-secondary);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 16px;
+    font-size: 16px;
+  }
 
-    #preview {
-      display: none;
-      background: white;
-      color: black;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 8px;
-      font-family: 'Helvetica', sans-serif;
-    }
+  #preview {
+    display: none;
+    background: white;
+    color: black;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    font-family: 'Helvetica', sans-serif;
+  }
 
-    #preview h2 {
-      text-align: center;
-      margin-top: 0;
-      color: #333;
-    }
+  #preview h2 {
+    text-align: center;
+    margin-top: 0;
+    color: #333;
+  }
 
-    #preview .item {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #eee;
-    }
+  #preview .item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+  }
 
-    #preview .total {
-      font-size: 20px;
-      font-weight: bold;
-      text-align: right;
-      margin-top: 12px;
-      color: #222;
-    }
-  </style>
+  #preview .total {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: right;
+    margin-top: 12px;
+    color: #222;
+  }
+</style>
 </head>
 <body>
   <div class="container">
