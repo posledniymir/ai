@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="guitar_sueta">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#121212">
+  <link rel="apple-touch-icon" href="image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
+  <title>guitar_sueta</title>
+  <style>
+    :root {
+      --fm-bg: #121212;
+      --fm-card: #1e1e1e;
+      --fm-block: #2a2a2a;
+      --fm-input: #2d2d2d;
+      --fm-border: #444;
+      --fm-accent: #03DAC6;
+      --fm-accent-secondary: #BB86FC;
+      --fm-text: #E0E0E0;
+      --fm-text-secondary: #AAA;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--fm-bg);
+      color: var(--fm-text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--fm-card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 16px;
+      color: var(--fm-accent-secondary);
+      font-size: 22px;
+    }
+
+    .guitar-name-row {
+      margin-bottom: 20px;
+    }
+
+    .guitar-name-input {
+      width: 100%;
+      background: var(--fm-input);
+      color: var(--fm-text);
+      border: 1px solid var(--fm-border);
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 15px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--fm-accent);
+      font-weight: bold;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .service-select,
+    .manual-name,
+    .manual-type,
+    .discount-input,
+    .price-input {
+      background: var(--fm-input);
+      color: var(--fm-text);
+      border: 1px solid var(--fm-border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 14px;
+      min-height: 36px;
+      height: 36px;
+    }
+
+    .service-select,
+    .manual-name {
+      flex: 2;
+    }
+
+    .price-input {
+      flex: 1;
+      text-align: right;
+    }
+
+    .manual-type {
+      flex: 1;
+      max-width: 140px;
+    }
+
+    .add-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--fm-accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 0;
+      font-size: 15px;
+    }
+
+    .discount-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .discount-label {
+      flex: 2;
+      color: var(--fm-text-secondary);
+    }
+
+    .total-box {
+      background: var(--fm-block);
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--fm-accent);
+    }
+
+    .preview-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--fm-accent-secondary);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+      font-size: 16px;
+    }
+
+    #preview {
+      display: none;
+      background: white;
+      color: black;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      font-family: 'Helvetica', sans-serif;
+    }
+
+    #preview h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #333;
+    }
+
+    #preview .item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    #preview .total {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 12px;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>guitar_sueta</h1>
+
+    <!-- Поле для названия гитары -->
+    <div class="guitar-name-row">
+      <input type="text" id="guitar-name" class="guitar-name-input" placeholder="Название гитары (необязательно)">
+    </div>
+
+    <!-- Услуги из списка -->
+    <div class="section">
+      <div class="section-title">Услуги из прайса</div>
+      <div id="service-rows"></div>
+      <button class="add-btn" onclick="addServiceRow()">➕ Добавить услугу</button>
+    </div>
+
+    <!-- Ручной ввод -->
+    <div class="section">
+      <div class="section-title">Другие работы</div>
+      <div id="manual-rows"></div>
+      <button class="add-btn" onclick="addManualRow()">➕ Добавить вручную</button>
+    </div>
+
+    <!-- Скидка -->
+    <div class="discount-row">
+      <div class="discount-label">Скидка (%)</div>
+      <input type="number" id="discount-input" class="discount-input" placeholder="0" min="0" max="100" step="1" oninput="updateTotal()">
+    </div>
+
+    <div class="total-box">
+      Итого: <span id="total">0</span> ₽
+    </div>
+
+    <button class="preview-btn" onclick="generatePreview()">📸 Сгенерировать прейскурант</button>
+
+    <div id="preview"></div>
+  </div>
+
+  <script>
+    // ✅ Услуги встроены прямо в код — не нужен services.json
+    const services = [
+      { "name": "Шлифовка ладов", "price": 1500 },
+      { "name": "Замена струн", "price": 300 },
+      { "name": "Регулировка анкерного болта", "price": 800 },
+      { "name": "Покраска грифа", "price": 3500 },
+      { "name": "Установка нового звукоснимателя", "price": 2000 },
+      { "name": "Чистка электроники", "price": 600 },
+      { "name": "Ремонт корпуса", "price": 2500 },
+      { "name": "Настройка интонации", "price": 700 },
+      { "name": "Полировка корпуса", "price": 1200 },
+      { "name": "Замена колков", "price": 1000 }
+    ];
+
+    // Инициализация
+    addServiceRow();
+    addManualRow();
+
+    // === УСЛУГИ ИЗ СПИСКА ===
+    function createServiceSelect() {
+      const select = document.createElement('select');
+      select.className = 'service-select';
+
+      const emptyOpt = document.createElement('option');
+      emptyOpt.value = '';
+      emptyOpt.textContent = '— Выберите услугу —';
+      select.appendChild(emptyOpt);
+
+      services.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.name;
+        opt.dataset.price = s.price;
+        opt.textContent = s.name;
+        select.appendChild(opt);
+      });
+
+      return select;
+    }
+
+    function addServiceRow() {
+      const container = document.getElementById('service-rows');
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const select = createServiceSelect();
+      const priceInput = document.createElement('input');
+      priceInput.type = 'number';
+      priceInput.className = 'price-input';
+      priceInput.placeholder = '₽';
+      priceInput.min = '0';
+      priceInput.step = '1';
+      priceInput.value = '';
+
+      select.addEventListener('change', (e) => {
+        const price = e.target.selectedOptions[0]?.dataset.price || '';
+        priceInput.value = price;
+        updateTotal();
+      });
+
+      priceInput.addEventListener('input', updateTotal);
+
+      row.appendChild(select);
+      row.appendChild(priceInput);
+      container.appendChild(row);
+    }
+
+    // === РУЧНОЙ ВВОД ===
+    function addManualRow() {
+      const container = document.getElementById('manual-rows');
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.className = 'manual-name';
+      nameInput.placeholder = 'Название работы';
+
+      const typeSelect = document.createElement('select');
+      typeSelect.className = 'manual-type';
+      const opt1 = document.createElement('option');
+      opt1.value = 'service';
+      opt1.textContent = 'Услуга';
+      const opt2 = document.createElement('option');
+      opt2.value = 'prepayment';
+      opt2.textContent = 'Предоплата';
+      typeSelect.appendChild(opt1);
+      typeSelect.appendChild(opt2);
+
+      const priceInput = document.createElement('input');
+      priceInput.type = 'number';
+      priceInput.className = 'price-input';
+      priceInput.placeholder = '₽';
+      priceInput.min = '0';
+      priceInput.step = '1';
+      priceInput.value = '';
+
+      [nameInput, typeSelect, priceInput].forEach(el => el.addEventListener('input', updateTotal));
+
+      row.appendChild(nameInput);
+      row.appendChild(typeSelect);
+      row.appendChild(priceInput);
+      container.appendChild(row);
+    }
+
+    // === РАСЧЁТ ИТОГА ===
+    function updateTotal() {
+      let totalServices = 0;
+      let totalPrepayments = 0;
+
+      // Услуги из списка
+      document.querySelectorAll('#service-rows .row').forEach(row => {
+        const priceInput = row.querySelector('.price-input');
+        const price = parseInt(priceInput.value) || 0;
+        if (price > 0) totalServices += price;
+      });
+
+      // Ручной ввод
+      document.querySelectorAll('#manual-rows .row').forEach(row => {
+        const nameInput = row.querySelector('.manual-name');
+        const typeSelect = row.querySelector('.manual-type');
+        const priceInput = row.querySelector('.price-input');
+        const name = nameInput.value.trim();
+        const price = parseInt(priceInput.value) || 0;
+        if (name && price > 0) {
+          if (typeSelect.value === 'prepayment') {
+            totalPrepayments += price;
+          } else {
+            totalServices += price;
+          }
+        }
+      });
+
+      // Скидка
+      const discountInput = document.getElementById('discount-input');
+      const discountPercent = parseFloat(discountInput.value) || 0;
+      const clampedDiscount = Math.max(0, Math.min(100, discountPercent));
+      const discountAmount = totalServices * (clampedDiscount / 100);
+      const totalAfterDiscount = totalServices - discountAmount;
+
+      const finalTotal = totalAfterDiscount - totalPrepayments;
+
+      document.getElementById('total').textContent = Math.round(finalTotal);
+    }
+
+    // === ГЕНЕРАЦИЯ ПРЕЙСКУРАНТА ===
+    function generatePreview() {
+      const preview = document.getElementById('preview');
+      let html = '<h2>Прейскурант работ</h2>';
+      let hasItems = false;
+
+      // Название гитары
+      const guitarName = document.getElementById('guitar-name').value.trim();
+      if (guitarName) {
+        html += `<div class="item" style="font-weight:bold; border-bottom:2px solid #333; padding-bottom:8px;"><span>Гитара:</span> <span>${guitarName}</span></div>`;
+      }
+
+      // Услуги из списка
+      document.querySelectorAll('#service-rows .row').forEach(row => {
+        const select = row.querySelector('.service-select');
+        const priceInput = row.querySelector('.price-input');
+        const name = select.value;
+        const price = parseInt(priceInput.value);
+        if (name && price > 0) {
+          html += `<div class="item"><span>${name}</span> <span>+${price} ₽</span></div>`;
+          hasItems = true;
+        }
+      });
+
+      // Ручной ввод
+      document.querySelectorAll('#manual-rows .row').forEach(row => {
+        const nameInput = row.querySelector('.manual-name');
+        const typeSelect = row.querySelector('.manual-type');
+        const priceInput = row.querySelector('.price-input');
+        const name = nameInput.value.trim();
+        const price = parseInt(priceInput.value);
+        if (name && price > 0) {
+          const sign = typeSelect.value === 'prepayment' ? '-' : '+';
+          html += `<div class="item"><span>${name}</span> <span>${sign}${price} ₽</span></div>`;
+          hasItems = true;
+        }
+      });
+
+      // Скидка
+      const discountInput = document.getElementById('discount-input');
+      const discount = parseFloat(discountInput.value) || 0;
+      if (discount > 0 && hasItems) {
+        const totalServices = [...document.querySelectorAll('#service-rows .row')]
+          .map(row => parseInt(row.querySelector('.price-input').value) || 0)
+          .reduce((a, b) => a + b, 0) +
+          [...document.querySelectorAll('#manual-rows .row')]
+            .map(row => {
+              const type = row.querySelector('.manual-type').value;
+              const price = parseInt(row.querySelector('.price-input').value) || 0;
+              const name = row.querySelector('.manual-name').value.trim();
+              return (type === 'service' && name && price > 0) ? price : 0;
+            })
+            .reduce((a, b) => a + b, 0);
+
+        const discountAmount = Math.round(totalServices * (discount / 100));
+        html += `<div class="item"><span>Скидка (${discount}%)</span> <span>–${discountAmount} ₽</span></div>`;
+      }
+
+      if (!hasItems) {
+        html += '<p>Нет работ для отображения</p>';
+        preview.innerHTML = html;
+        preview.style.display = 'block';
+        return;
+      }
+
+      const total = parseInt(document.getElementById('total').textContent) || 0;
+      const totalSign = total >= 0 ? '' : '-';
+      html += `<div class="total">Итого: ${totalSign}${Math.abs(total)} ₽</div>`;
+
+      preview.innerHTML = html;
+      preview.style.display = 'block';
+      preview.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
