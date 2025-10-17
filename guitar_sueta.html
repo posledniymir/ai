@@ -8,7 +8,11 @@
   <meta name="apple-mobile-web-app-title" content="guitar_sueta">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#121212">
-  <link rel="apple-touch-icon" href="image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎸</text></svg>">
+
+  <!-- 🎛️ Иконка: Les Paul knob -->
+  <link rel="apple-touch-icon" href="image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI4MCIgZmlsbD0iIzAwMDAwMCIvPjxjaXJjbGUgY3g9Ijk2IiBjeT0iMzUiIHI9IjEwIiBmaWxsPSIjRkZGRkZGIi8+PC9zdmc+">
+  <link rel="icon" type="image/svg+xml" href="image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI4MCIgZmlsbD0iIzAwMDAwMCIvPjxjaXJjbGUgY3g9Ijk2IiBjeT0iMzUiIHI9IjEwIiBmaWxsPSIjRkZGRkZGIi8+PC9zdmc+">
+
   <title>guitar_sueta</title>
   <style>
     :root {
@@ -66,14 +70,16 @@
     }
 
     .section {
-      margin-bottom: 24px;
+      margin-bottom: 28px; /* увеличенный отступ между блоками */
     }
 
     .section-title {
       font-size: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       color: var(--fm-accent);
       font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .row {
@@ -198,12 +204,11 @@
   <div class="container">
     <h1>guitar_sueta</h1>
 
-    <!-- Поле для названия гитары -->
     <div class="guitar-name-row">
       <input type="text" id="guitar-name" class="guitar-name-input" placeholder="Название гитары (необязательно)">
     </div>
 
-    <!-- Услуги из списка -->
+    <!-- Услуги из списка (группы) -->
     <div class="section">
       <div class="section-title">Услуги из прайса</div>
       <div id="service-rows"></div>
@@ -233,18 +238,42 @@
   </div>
 
   <script>
-    // ✅ Услуги встроены прямо в код — не нужен services.json
+    // ✅ Услуги с группами и заголовками
     const services = [
-      { "name": "Шлифовка ладов", "price": 1500 },
+      // СТРУНЫ
+      { "name": "СТРУНЫ", "price": null, "isHeader": true },
       { "name": "Замена струн", "price": 300 },
-      { "name": "Регулировка анкерного болта", "price": 800 },
-      { "name": "Покраска грифа", "price": 3500 },
-      { "name": "Установка нового звукоснимателя", "price": 2000 },
-      { "name": "Чистка электроники", "price": 600 },
-      { "name": "Ремонт корпуса", "price": 2500 },
-      { "name": "Настройка интонации", "price": 700 },
-      { "name": "Полировка корпуса", "price": 1200 },
-      { "name": "Замена колков", "price": 1000 }
+      { "name": "Чистка накладки", "price": 500 },
+      { "name": "Мензура / высота", "price": 800 },
+
+      // ГРИФ
+      { "name": "ГРИФ", "price": null, "isHeader": true },
+      { "name": "Полировка ладов", "price": 1200 },
+      { "name": "Торцовка ладов", "price": 1500 },
+      { "name": "Шлифовка ладов", "price": 1800 },
+      { "name": "Замена / установка порожка", "price": 1000 },
+
+      // ЭЛЕКТРИКА
+      { "name": "ЭЛЕКТРИКА", "price": null, "isHeader": true },
+      { "name": "Замена потенциометра", "price": 600 },
+      { "name": "Замена разъема", "price": 400 },
+      { "name": "Замена переключателя", "price": 700 },
+      { "name": "Замена датчика", "price": 2000 },
+      { "name": "Отсечка", "price": 500 },
+      { "name": "Парафин", "price": 900 },
+      { "name": "Замена проводов", "price": 800 },
+      { "name": "Экранирование графитом", "price": 1200 },
+      { "name": "Экранирование медной фольгой", "price": 1500 },
+
+      // ПРОЧЕЕ
+      { "name": "ПРОЧЕЕ", "price": null, "isHeader": true },
+      { "name": "Полировка деки", "price": 1600 },
+      { "name": "Установка пигарда", "price": 1000 },
+      { "name": "Установка тремоло", "price": 2500 },
+      { "name": "Замена тремоло", "price": 3000 },
+      { "name": "Замена колковой механики", "price": 1200 },
+      { "name": "Установка ремнедержателей", "price": 300 },
+      { "name": "Установка датчика на акустику", "price": 2200 }
     ];
 
     // Инициализация
@@ -262,11 +291,21 @@
       select.appendChild(emptyOpt);
 
       services.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.name;
-        opt.dataset.price = s.price;
-        opt.textContent = s.name;
-        select.appendChild(opt);
+        if (s.isHeader) {
+          const opt = document.createElement('option');
+          opt.disabled = true;
+          opt.style.backgroundColor = '#333';
+          opt.style.color = '#BB86FC';
+          opt.style.fontWeight = 'bold';
+          opt.textContent = s.name;
+          select.appendChild(opt);
+        } else {
+          const opt = document.createElement('option');
+          opt.value = s.name;
+          opt.dataset.price = s.price;
+          opt.textContent = s.name;
+          select.appendChild(opt);
+        }
       });
 
       return select;
@@ -342,14 +381,12 @@
       let totalServices = 0;
       let totalPrepayments = 0;
 
-      // Услуги из списка
       document.querySelectorAll('#service-rows .row').forEach(row => {
         const priceInput = row.querySelector('.price-input');
         const price = parseInt(priceInput.value) || 0;
         if (price > 0) totalServices += price;
       });
 
-      // Ручной ввод
       document.querySelectorAll('#manual-rows .row').forEach(row => {
         const nameInput = row.querySelector('.manual-name');
         const typeSelect = row.querySelector('.manual-type');
@@ -365,7 +402,6 @@
         }
       });
 
-      // Скидка
       const discountInput = document.getElementById('discount-input');
       const discountPercent = parseFloat(discountInput.value) || 0;
       const clampedDiscount = Math.max(0, Math.min(100, discountPercent));
@@ -383,13 +419,11 @@
       let html = '<h2>Прейскурант работ</h2>';
       let hasItems = false;
 
-      // Название гитары
       const guitarName = document.getElementById('guitar-name').value.trim();
       if (guitarName) {
         html += `<div class="item" style="font-weight:bold; border-bottom:2px solid #333; padding-bottom:8px;"><span>Гитара:</span> <span>${guitarName}</span></div>`;
       }
 
-      // Услуги из списка
       document.querySelectorAll('#service-rows .row').forEach(row => {
         const select = row.querySelector('.service-select');
         const priceInput = row.querySelector('.price-input');
@@ -401,7 +435,6 @@
         }
       });
 
-      // Ручной ввод
       document.querySelectorAll('#manual-rows .row').forEach(row => {
         const nameInput = row.querySelector('.manual-name');
         const typeSelect = row.querySelector('.manual-type');
@@ -415,7 +448,6 @@
         }
       });
 
-      // Скидка
       const discountInput = document.getElementById('discount-input');
       const discount = parseFloat(discountInput.value) || 0;
       if (discount > 0 && hasItems) {
