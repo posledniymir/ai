@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фото на отбор</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        h1 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        .subtitle {
+            color: #b0b0b0;
+            font-size: 1.1rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .btn {
+            background: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:hover {
+            background: #444;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.4);
+            border-color: #555;
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-export {
+            background: #2d5016;
+            border-color: #3a6620;
+        }
+        
+        .btn-export:hover {
+            background: #3a6620;
+            border-color: #477a27;
+        }
+        
+        .btn-reset {
+            background: #5c1a1a;
+            border-color: #742020;
+        }
+        
+        .btn-reset:hover {
+            background: #742020;
+            border-color: #8b2626;
+        }
+        
+        .btn-copy {
+            background: #1a3c5c;
+            border-color: #204a6e;
+        }
+        
+        .btn-copy:hover {
+            background: #204a6e;
+            border-color: #265a85;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        th, td {
+            border: 1px solid #333;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #222;
+            color: #e0e0e0;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        th input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            background: #1a1a1a;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        th input:focus {
+            outline: none;
+            border-color: #555;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+        
+        tr:nth-child(even) {
+            background-color: #1e1e1e;
+        }
+        
+        tr:hover {
+            background-color: #252525;
+        }
+        
+        td {
+            position: relative;
+        }
+        
+        td input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            border-radius: 4px;
+            transition: border 0.3s;
+            color: #e0e0e0;
+        }
+        
+        td input:focus {
+            border-color: #444;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+        
+        .instructions {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border-left: 4px solid #333;
+        }
+        
+        .instructions h3 {
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            color: #b0b0b0;
+        }
+        
+        .icon {
+            font-size: 18px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2d5016;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Фото на отбор</h1>
+            <p class="subtitle">Вставляйте номера фото с комментариями по обработке и экспортируйте данные</p>
+        </header>
+        
+        <div class="controls">
+            <button class="btn btn-export" id="exportBtn">
+                <span class="icon">📥</span> Экспорт в TXT
+            </button>
+            <button class="btn btn-copy" id="copyBtn">
+                <span class="icon">📋</span> Копировать в буфер
+            </button>
+            <button class="btn btn-reset" id="resetBtn">
+                <span class="icon">🔄</span> Сбросить таблицу
+            </button>
+        </div>
+        
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th><input type="text" placeholder="Заголовок 1"></th>
+                        <th><input type="text" placeholder="Заголовок 2"></th>
+                        <th><input type="text" placeholder="Заголовок 3"></th>
+                        <th><input type="text" placeholder="Заголовок 4"></th>
+                        <th><input type="text" placeholder="Заголовок 5"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Строки будут сгенерированы JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="instructions">
+            <h3>Инструкция:</h3>
+            <ul>
+                <li>Кликните на заголовок для добавления модели товара</li>
+                <li>Кликните на ячейку для добавления номера фото</li>
+                <li>Нажмите "Экспорт в TXT" для сохранения данных в текстовый файл</li>
+                <li>Нажмите "Копировать в буфер" для копирования данных в буфер обмена</li>
+                <li>Нажмите "Сбросить таблицу" для очистки всех данных</li>
+                <li>При экспорте пустые строки и ячейки игнорируются</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Инициализация таблицы
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableBody = document.querySelector('#dataTable tbody');
+            
+            // Заполняем таблицу пустыми строками
+            for (let i = 0; i < 30; i++) {
+                const row = document.createElement('tr');
+                
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = '';
+                    input.placeholder = 'Введите данные';
+                    cell.appendChild(input);
+                    row.appendChild(cell);
+                }
+                
+                tableBody.appendChild(row);
+            }
+            
+            // Обработчик для кнопки экспорта
+            document.getElementById('exportBtn').addEventListener('click', exportToTxt);
+            
+            // Обработчик для кнопки копирования
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            
+            // Обработчик для кнопки сброса
+            document.getElementById('resetBtn').addEventListener('click', resetTable);
+        });
+        
+        // Функция для получения данных таблицы
+        function getTableData() {
+            const table = document.getElementById('dataTable');
+            const headers = [];
+            const columns = [];
+            
+            // Получаем заголовки
+            const headerInputs = table.querySelectorAll('thead th input');
+            headerInputs.forEach(input => {
+                const value = input.value.trim();
+                if (value) {
+                    headers.push(value);
+                } else {
+                    headers.push(`Колонка ${headers.length + 1}`);
+                }
+            });
+            
+            // Инициализируем массивы для каждого столбца
+            for (let i = 0; i < headers.length; i++) {
+                columns.push([]);
+            }
+            
+            // Получаем данные из таблицы по столбцам
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('td input');
+                let rowHasData = false;
+                
+                // Проверяем, есть ли данные в строке
+                inputs.forEach(input => {
+                    if (input.value.trim() !== '') {
+                        rowHasData = true;
+                    }
+                });
+                
+                // Если в строке есть данные, добавляем их в соответствующие столбцы
+                if (rowHasData) {
+                    inputs.forEach((input, index) => {
+                        if (input.value.trim() !== '') {
+                            columns[index].push(input.value);
+                        }
+                    });
+                }
+            });
+            
+            return { headers, columns };
+        }
+        
+        // Функция для форматирования данных в текстовый формат
+        function formatTableData(headers, columns) {
+            let txtContent = '';
+            
+            // Добавляем данные по столбцам
+            for (let i = 0; i < headers.length; i++) {
+                // Добавляем заголовок столбца только если есть данные в столбце
+                if (columns[i].length > 0) {
+                    txtContent += headers[i] + '\n';
+                    
+                    // Добавляем данные столбца
+                    columns[i].forEach(data => {
+                        txtContent += data + '\n';
+                    });
+                    
+                    // Добавляем разделитель между столбцами (кроме последнего)
+                    if (i < headers.length - 1) {
+                        txtContent += '\n';
+                    }
+                }
+            }
+            
+            // Убираем лишние пустые строки в конце файла
+            return txtContent.trim();
+        }
+        
+        // Функция экспорта в TXT
+        function exportToTxt() {
+            const { headers, columns } = getTableData();
+            const txtContent = formatTableData(headers, columns);
+            
+            // Создаем и скачиваем файл
+            const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'table_export.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Визуальная обратная связь
+            showNotification('Файл успешно экспортирован!');
+            
+            const exportBtn = document.getElementById('exportBtn');
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<span class="icon">✅</span> Файл экспортирован!';
+            exportBtn.style.background = '#2d5016';
+            
+            setTimeout(() => {
+                exportBtn.innerHTML = originalText;
+                exportBtn.style.background = '';
+            }, 2000);
+        }
+        
+        // Функция копирования в буфер обмена
+        function copyToClipboard() {
+            const { headers, columns } = getTableData();
+            const txtContent = formatTableData(headers, columns);
+            
+            // Используем современный API для копирования в буфер обмена
+            navigator.clipboard.writeText(txtContent)
+                .then(() => {
+                    showNotification('Данные скопированы в буфер обмена!');
+                    
+                    const copyBtn = document.getElementById('copyBtn');
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<span class="icon">✅</span> Скопировано!';
+                    copyBtn.style.background = '#1a3c5c';
+                    
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.style.background = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Ошибка при копировании в буфер обмена: ', err);
+                    showNotification('Ошибка при копировании в буфер обмена', true);
+                });
+        }
+        
+        // Функция сброса таблицы
+        function resetTable() {
+            if (!confirm('Вы уверены, что хотите сбросить таблицу? Все данные будут удалены.')) {
+                return;
+            }
+            
+            const tableBody = document.querySelector('#dataTable tbody');
+            const headerInputs = document.querySelectorAll('thead th input');
+            
+            // Очищаем заголовки
+            headerInputs.forEach(input => {
+                input.value = '';
+            });
+            
+            // Очищаем данные таблицы
+            const inputs = tableBody.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.value = '';
+            });
+            
+            // Визуальная обратная связь
+            showNotification('Таблица успешно сброшена!');
+            
+            const resetBtn = document.getElementById('resetBtn');
+            const originalText = resetBtn.innerHTML;
+            resetBtn.innerHTML = '<span class="icon">✅</span> Таблица сброшена!';
+            resetBtn.style.background = '#2d5016';
+            
+            setTimeout(() => {
+                resetBtn.innerHTML = originalText;
+                resetBtn.style.background = '';
+            }, 2000);
+        }
+        
+        // Функция показа уведомления
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = isError ? '#5c1a1a' : '#2d5016';
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
