@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пакетный конвертер изображений в WebP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --bg-hover: #2a2a2a;
+            --accent: #3a3a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: #333333;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --error: #f44336;
+            --png-color: #ff6b6b;
+            --jpg-color: #4ecdc4;
+            --jpeg-color: #45b7d1;
+            --webp-color: #96ceb4;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .supported-formats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .format-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .format-png {
+            background: var(--png-color);
+            color: #000;
+        }
+
+        .format-jpg {
+            background: var(--jpg-color);
+            color: #000;
+        }
+
+        .format-jpeg {
+            background: var(--jpeg-color);
+            color: #000;
+        }
+
+        .format-webp {
+            background: var(--webp-color);
+            color: #000;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+        }
+
+        .upload-section {
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--text-secondary);
+            background: var(--bg-hover);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        .upload-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .browse-btn {
+            background: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .browse-btn:hover {
+            background: #4a4a4a;
+            transform: translateY(-2px);
+        }
+
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            gap: 15px;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-icon {
+            font-size: 24px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .file-format {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .action-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .preview-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .preview-item {
+            background: var(--bg-hover);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        .preview-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-info {
+            padding: 12px;
+        }
+
+        .preview-name {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preview-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .settings-section h3, .actions-section h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .quality-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .quality-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .quality-value {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-top: 5px;
+            color: var(--text-primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--text-primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .action-btn-large {
+            background: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-btn-large:hover {
+            background: #4a4a4a;
+            transform: translateY(-2px);
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #3a3a3a, #555);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #2d7d32, #4CAF50);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #c62828, #f44336);
+        }
+
+        .progress-section {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3a3a3a, #4CAF50);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: var(--bg-hover);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .savings {
+            color: var(--success);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .format-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .preview-section {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .supported-formats {
+                gap: 8px;
+            }
+            
+            .format-badge {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Стили для скроллбара */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-card);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-exchange-alt"></i> Пакетный конвертер изображений в WebP</h1>
+            <p class="subtitle">Конвертируйте PNG, JPG и JPEG изображения в современный формат WebP</p>
+            
+            <div class="supported-formats">
+                <span class="format-badge format-png">PNG</span>
+                <span class="format-badge format-jpg">JPG</span>
+                <span class="format-badge format-jpeg">JPEG</span>
+                <span class="format-badge format-webp">WebP</span>
+            </div>
+        </header>
+
+        <div class="app-container">
+            <div class="main-content">
+                <div class="card upload-section">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">Перетащите изображения сюда или нажмите для выбора</div>
+                        <input type="file" id="fileInput" class="file-input" accept=".png,.jpg,.jpeg" multiple>
+                        <button class="browse-btn" id="browseBtn">
+                            <i class="fas fa-folder-open"></i> Выбрать файлы
+                        </button>
+                    </div>
+                    
+                    <div class="format-filter" id="formatFilter">
+                        <button class="filter-btn active" data-format="all">Все форматы</button>
+                        <button class="filter-btn" data-format="png">PNG</button>
+                        <button class="filter-btn" data-format="jpg">JPG</button>
+                        <button class="filter-btn" data-format="jpeg">JPEG</button>
+                    </div>
+                    
+                    <div class="file-list" id="fileList">
+                        <!-- Список файлов будет добавляться здесь -->
+                    </div>
+                </div>
+
+                <div class="card preview-section" id="previewSection">
+                    <!-- Превью изображений будет добавляться здесь -->
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card settings-section">
+                    <h3><i class="fas fa-cog"></i> Настройки конвертации</h3>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">Качество изображения:</label>
+                        <input type="range" id="qualitySlider" class="quality-slider" min="1" max="100" value="80">
+                        <div class="quality-value" id="qualityValue">80%</div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">Дополнительные опции:</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="keepMetadata" class="checkbox" checked>
+                            <label for="keepMetadata">Сохранять метаданные</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="resizeImages" class="checkbox">
+                            <label for="resizeImages">Изменять размер изображений</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card actions-section">
+                    <h3><i class="fas fa-play-circle"></i> Действия</h3>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn-large convert-btn" id="convertBtn">
+                            <i class="fas fa-sync-alt"></i> Конвертировать все
+                        </button>
+                        <button class="action-btn-large download-btn" id="downloadBtn" disabled>
+                            <i class="fas fa-download"></i> Скачать все WebP
+                        </button>
+                        <button class="action-btn-large reset-btn" id="resetBtn">
+                            <i class="fas fa-trash-alt"></i> Очистить все
+                        </button>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Готово к конвертации</div>
+                    </div>
+                    
+                    <div class="stats-section">
+                        <div class="stat-box">
+                            <div class="stat-value" id="totalFiles">0</div>
+                            <div class="stat-label">Всего файлов</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value savings" id="totalSavings">0%</div>
+                            <div class="stat-label">Общая экономия</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Пакетный конвертер изображений в WebP &copy; 2023 | Все права защищены</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileList = document.getElementById('fileList');
+            const previewSection = document.getElementById('previewSection');
+            const qualitySlider = document.getElementById('qualitySlider');
+            const qualityValue = document.getElementById('qualityValue');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const totalFiles = document.getElementById('totalFiles');
+            const totalSavings = document.getElementById('totalSavings');
+            const formatFilter = document.getElementById('formatFilter');
+            
+            // Переменные состояния
+            let files = [];
+            let convertedFiles = [];
+            let currentFilter = 'all';
+            
+            // Обработчики событий
+            browseBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleFileDrop);
+            qualitySlider.addEventListener('input', updateQualityValue);
+            convertBtn.addEventListener('click', convertAllToWebP);
+            downloadBtn.addEventListener('click', downloadAllWebP);
+            resetBtn.addEventListener('click', resetApp);
+            
+            // Обработчики для фильтров форматов
+            formatFilter.addEventListener('click', function(e) {
+                if (e.target.classList.contains('filter-btn')) {
+                    // Убираем активный класс у всех кнопок
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Добавляем активный класс к нажатой кнопке
+                    e.target.classList.add('active');
+                    
+                    // Устанавливаем текущий фильтр
+                    currentFilter = e.target.getAttribute('data-format');
+                    
+                    // Обновляем список файлов с учетом фильтра
+                    updateFileList();
+                }
+            });
+            
+            // Функции
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.style.borderColor = '#b0b0b0';
+                uploadArea.style.backgroundColor = '#2a2a2a';
+            }
+            
+            function handleFileDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.style.borderColor = '#333333';
+                uploadArea.style.backgroundColor = '';
+                
+                const droppedFiles = Array.from(e.dataTransfer.files);
+                processFiles(droppedFiles);
+            }
+            
+            function handleFileSelect(e) {
+                const selectedFiles = Array.from(e.target.files);
+                processFiles(selectedFiles);
+            }
+            
+            function processFiles(newFiles) {
+                // Фильтруем только поддерживаемые форматы
+                const supportedFiles = newFiles.filter(file => 
+                    file.type === 'image/png' || 
+                    file.type === 'image/jpg' || 
+                    file.type === 'image/jpeg'
+                );
+                
+                if (supportedFiles.length === 0) {
+                    alert('Пожалуйста, выберите PNG, JPG или JPEG изображения');
+                    return;
+                }
+                
+                if (supportedFiles.length < newFiles.length) {
+                    alert(`Загружено ${supportedFiles.length} из ${newFiles.length} файлов. Неподдерживаемые форматы были проигнорированы.`);
+                }
+                
+                // Добавляем файлы в список
+                files = [...files, ...supportedFiles];
+                updateFileList();
+                updatePreview();
+                updateStats();
+            }
+            
+            function getFormatColor(format) {
+                switch(format.toLowerCase()) {
+                    case 'png': return 'var(--png-color)';
+                    case 'jpg': return 'var(--jpg-color)';
+                    case 'jpeg': return 'var(--jpeg-color)';
+                    case 'webp': return 'var(--webp-color)';
+                    default: return 'var(--text-secondary)';
+                }
+            }
+            
+            function getFormatIcon(format) {
+                switch(format.toLowerCase()) {
+                    case 'png': return 'far fa-file-image';
+                    case 'jpg': return 'far fa-file-image';
+                    case 'jpeg': return 'far fa-file-image';
+                    default: return 'far fa-file';
+                }
+            }
+            
+            function getFileFormat(file) {
+                if (file.type === 'image/png') return 'PNG';
+                if (file.type === 'image/jpg') return 'JPG';
+                if (file.type === 'image/jpeg') return 'JPEG';
+                return file.name.split('.').pop().toUpperCase();
+            }
+            
+            function updateFileList() {
+                fileList.innerHTML = '';
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = '<div style="text-align: center; padding: 20px; color: #b0b0b0;">Нет загруженных файлов</div>';
+                    return;
+                }
+                
+                // Фильтруем файлы по выбранному формату
+                const filteredFiles = currentFilter === 'all' 
+                    ? files 
+                    : files.filter(file => getFileFormat(file).toLowerCase() === currentFilter);
+                
+                if (filteredFiles.length === 0) {
+                    fileList.innerHTML = `<div style="text-align: center; padding: 20px; color: #b0b0b0;">Нет файлов формата ${currentFilter.toUpperCase()}</div>`;
+                    return;
+                }
+                
+                filteredFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item fade-in';
+                    
+                    const fileSize = (file.size / 1024).toFixed(2);
+                    const fileFormat = getFileFormat(file);
+                    const formatColor = getFormatColor(fileFormat);
+                    
+                    fileItem.innerHTML = `
+                        <div class="file-icon" style="color: ${formatColor}">
+                            <i class="${getFormatIcon(fileFormat)}"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">${file.name}
+                                <span class="file-format" style="background: ${formatColor}">${fileFormat}</span>
+                            </div>
+                            <div class="file-size">${fileSize} KB</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="action-btn preview-btn" data-index="${files.indexOf(file)}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn remove-btn" data-index="${files.indexOf(file)}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    fileList.appendChild(fileItem);
+                });
+                
+                // Добавляем обработчики для кнопок удаления и предпросмотра
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        removeFile(index);
+                    });
+                });
+                
+                document.querySelectorAll('.preview-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        previewFile(index);
+                    });
+                });
+            }
+            
+            function updatePreview() {
+                previewSection.innerHTML = '';
+                
+                if (files.length === 0) {
+                    previewSection.innerHTML = '<div style="text-align: center; padding: 40px; color: #b0b0b0;">Загрузите изображения для предпросмотра</div>';
+                    return;
+                }
+                
+                // Показываем превью для первых 12 изображений
+                const previewFiles = files.slice(0, 12);
+                
+                previewFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'preview-item fade-in';
+                        
+                        const fileSize = (file.size / 1024).toFixed(2);
+                        const fileFormat = getFileFormat(file);
+                        const formatColor = getFormatColor(fileFormat);
+                        
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" class="preview-img" alt="${file.name}">
+                            <div class="preview-info">
+                                <div class="preview-name">${file.name}</div>
+                                <div class="preview-stats">
+                                    <span>${fileSize} KB</span>
+                                    <span style="color: ${formatColor}">${fileFormat}</span>
+                                </div>
+                            </div>
+                        `;
+                        
+                        previewSection.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+                
+                if (files.length > 12) {
+                    const moreFiles = document.createElement('div');
+                    moreFiles.className = 'preview-item';
+                    moreFiles.style.display = 'flex';
+                    moreFiles.style.alignItems = 'center';
+                    moreFiles.style.justifyContent = 'center';
+                    moreFiles.style.flexDirection = 'column';
+                    moreFiles.innerHTML = `
+                        <div style="font-size: 3rem; margin-bottom: 10px;">+${files.length - 12}</div>
+                        <div>еще файлов</div>
+                    `;
+                    
+                    previewSection.appendChild(moreFiles);
+                }
+            }
+            
+            function removeFile(index) {
+                files.splice(index, 1);
+                updateFileList();
+                updatePreview();
+                updateStats();
+            }
+            
+            function previewFile(index) {
+                const file = files[index];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // В реальном приложении здесь можно открыть модальное окно с увеличенным preview
+                    alert(`Просмотр: ${file.name}\nРазмер: ${(file.size / 1024).toFixed(2)} KB\nФормат: ${getFileFormat(file)}`);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            function updateQualityValue() {
+                qualityValue.textContent = `${qualitySlider.value}%`;
+            }
+            
+            function updateStats() {
+                totalFiles.textContent = files.length;
+                
+                if (convertedFiles.length > 0) {
+                    const totalOriginalSize = convertedFiles.reduce((sum, file) => sum + file.originalSize, 0);
+                    const totalConvertedSize = convertedFiles.reduce((sum, file) => sum + file.convertedSize, 0);
+                    const savings = ((totalOriginalSize - totalConvertedSize) / totalOriginalSize * 100).toFixed(1);
+                    totalSavings.textContent = `${savings}%`;
+                } else {
+                    totalSavings.textContent = '0%';
+                }
+            }
+            
+            function convertAllToWebP() {
+                if (files.length === 0) {
+                    alert('Пожалуйста, сначала загрузите изображения');
+                    return;
+                }
+                
+                const quality = parseInt(qualitySlider.value) / 100;
+                convertedFiles = [];
+                
+                progressText.textContent = 'Конвертация...';
+                progressFill.style.width = '0%';
+                
+                let completed = 0;
+                
+                files.forEach((file, index) => {
+                    setTimeout(() => {
+                        convertSingleFile(file, quality).then(convertedFile => {
+                            convertedFiles.push(convertedFile);
+                            completed++;
+                            
+                            const progress = (completed / files.length) * 100;
+                            progressFill.style.width = `${progress}%`;
+                            progressText.textContent = `Обработано: ${completed} из ${files.length}`;
+                            
+                            if (completed === files.length) {
+                                progressText.textContent = 'Конвертация завершена!';
+                                downloadBtn.disabled = false;
+                                updateStats();
+                                
+                                // Показываем уведомление
+                                showNotification(`Успешно сконвертировано ${files.length} файлов`);
+                            }
+                        });
+                    }, index * 100); // Небольшая задержка между конвертациями
+                });
+            }
+            
+            function convertSingleFile(file, quality) {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                        
+                        canvas.toBlob(function(blob) {
+                            resolve({
+                                originalFile: file,
+                                convertedBlob: blob,
+                                originalSize: file.size / 1024, // KB
+                                convertedSize: blob.size / 1024, // KB
+                                name: file.name.replace(/\.[^/.]+$/, "") + '.webp'
+                            });
+                        }, 'image/webp', quality);
+                    };
+                    
+                    img.src = URL.createObjectURL(file);
+                });
+            }
+            
+            function downloadAllWebP() {
+                if (convertedFiles.length === 0) {
+                    alert('Сначала выполните конвертацию');
+                    return;
+                }
+                
+                // Создаем ZIP-архив со всеми файлами
+                const zip = new JSZip();
+                
+                convertedFiles.forEach(file => {
+                    zip.file(file.name, file.convertedBlob);
+                });
+                
+                zip.generateAsync({type: "blob"}).then(function(content) {
+                    const url = URL.createObjectURL(content);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'converted_images.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showNotification('Архив успешно скачан!');
+                });
+            }
+            
+            function resetApp() {
+                if (files.length > 0 && !confirm('Вы уверены, что хотите очистить все файлы?')) {
+                    return;
+                }
+                
+                files = [];
+                convertedFiles = [];
+                fileInput.value = '';
+                
+                updateFileList();
+                updatePreview();
+                updateStats();
+                
+                progressFill.style.width = '0%';
+                progressText.textContent = 'Готово к конвертации';
+                downloadBtn.disabled = true;
+                
+                showNotification('Все файлы удалены');
+            }
+            
+            function showNotification(message) {
+                // В реальном приложении здесь можно использовать Toast уведомление
+                alert(message);
+            }
+            
+            // Инициализация приложения
+            updateFileList();
+            updatePreview();
+            updateStats();
+        });
+    </script>
+    
+    <!-- Подключаем библиотеку для создания ZIP-архивов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>
