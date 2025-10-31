@@ -124,9 +124,12 @@
       flex: 1;
       max-width: 140px;
     }
+
+    /* ✨ Soft colored outer glow для всех кнопок */
     .add-btn,
     .delete-btn,
-    .clear-btn {
+    .clear-btn,
+    .preview-btn {
       padding: 8px;
       border: none;
       border-radius: 6px;
@@ -138,22 +141,60 @@
       justify-content: center;
       gap: 6px;
       white-space: nowrap;
+      transition: box-shadow 0.25s ease;
     }
+
     .add-btn {
       background: var(--fm-accent);
       color: #000;
       flex: 1;
+      box-shadow: 0 0 8px rgba(3, 218, 198, 0.4);
     }
+    .add-btn:hover {
+      box-shadow: 0 0 12px rgba(3, 218, 198, 0.6);
+    }
+
     .delete-btn {
       background: #CF6679;
       color: #000;
       flex: 1;
+      box-shadow: 0 0 8px rgba(207, 102, 121, 0.4);
     }
+    .delete-btn:hover {
+      box-shadow: 0 0 12px rgba(207, 102, 121, 0.6);
+    }
+
     .clear-btn {
       background: var(--fm-accent-secondary);
       color: #000;
       flex: 1;
+      box-shadow: 0 0 8px rgba(187, 134, 252, 0.4);
     }
+    .clear-btn:hover {
+      box-shadow: 0 0 12px rgba(187, 134, 252, 0.6);
+    }
+
+    .preview-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--fm-accent-secondary);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 0 8px rgba(187, 134, 252, 0.4);
+    }
+    .preview-btn:hover {
+      box-shadow: 0 0 12px rgba(187, 134, 252, 0.6);
+    }
+
     .discount-row {
       display: flex;
       gap: 10px;
@@ -187,22 +228,6 @@
       font-size: 18px;
       font-weight: bold;
       color: var(--fm-accent);
-    }
-    .preview-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--fm-accent-secondary);
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 16px;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
     #preview {
       display: none;
@@ -245,7 +270,6 @@
 <body>
   <div class="container">
     <h1>guitar_sueta</h1>
-
     <div class="guitar-selector-row">
       <select id="guitar-selector" onchange="loadGuitarData(this.value)"></select>
       <button class="add-btn" onclick="addNewGuitar()">
@@ -261,11 +285,9 @@
         Очистить
       </button>
     </div>
-
     <div class="guitar-name-row">
       <input type="text" id="guitar-name" class="guitar-name-input" placeholder="Название гитары (необязательно)" oninput="saveCurrentState()">
     </div>
-
     <div class="section">
       <div class="section-title">Услуги из прайса</div>
       <div id="service-rows"></div>
@@ -274,7 +296,6 @@
         Добавить услугу
       </button>
     </div>
-
     <div class="section">
       <div class="section-title">Другие работы</div>
       <div id="manual-rows"></div>
@@ -283,23 +304,19 @@
         Добавить вручную
       </button>
     </div>
-
     <div class="discount-row">
       <div class="discount-label">Скидка (%)</div>
       <input type="number" id="discount-input" class="discount-input" placeholder="0" min="0" max="100" step="1" oninput="saveCurrentState(); updateTotal()">
     </div>
-
     <div class="total-box">
       Итого: <span id="total">0</span> ₽
     </div>
-
     <button class="preview-btn" onclick="generatePreview()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
       Сгенерировать прейскурант
     </button>
     <div id="preview"></div>
   </div>
-
   <script>
     const services = [
       { "name": "СТРУНЫ", "price": null, "isHeader": true },
@@ -331,9 +348,7 @@
       { "name": "Установка ремнедержателей", "price": 500 },
       { "name": "Установка датчика на акустику", "price": 4000 }
     ];
-
     let currentGuitarId = 'default';
-
     function createServiceSelect() {
       const select = document.createElement('select');
       select.className = 'service-select';
@@ -360,7 +375,6 @@
       });
       return select;
     }
-
     function addServiceRow(container = null, data = null) {
       const target = container || document.getElementById('service-rows');
       const row = document.createElement('div');
@@ -386,7 +400,6 @@
       row.appendChild(priceInput);
       target.appendChild(row);
     }
-
     function addManualRow(container = null, data = null) {
       const target = container || document.getElementById('manual-rows');
       const row = document.createElement('div');
@@ -420,16 +433,13 @@
       row.appendChild(priceInput);
       target.appendChild(row);
     }
-
     function getAllGuitars() {
       const saved = localStorage.getItem('guitar_sueta_guitars');
       return saved ? JSON.parse(saved) : { default: getEmptyGuitarData() };
     }
-
     function saveAllGuitars(data) {
       localStorage.setItem('guitar_sueta_guitars', JSON.stringify(data));
     }
-
     function getEmptyGuitarData() {
       return {
         guitarName: '',
@@ -438,7 +448,6 @@
         manualRows: [{ name: '', type: 'service', price: '' }]
       };
     }
-
     function saveCurrentState() {
       const all = getAllGuitars();
       const state = {
@@ -459,25 +468,19 @@
       updateGuitarSelector();
       updateTotal();
     }
-
     function loadGuitarData(id) {
       if (!id) return;
       currentGuitarId = id;
       const all = getAllGuitars();
       const data = all[id] || getEmptyGuitarData();
-
       document.getElementById('service-rows').innerHTML = '';
       document.getElementById('manual-rows').innerHTML = '';
-
       document.getElementById('guitar-name').value = data.guitarName || '';
       document.getElementById('discount-input').value = data.discount || '';
-
       (data.serviceRows.length ? data.serviceRows : [{ name: '', price: '' }]).forEach(d => addServiceRow(null, d));
       (data.manualRows.length ? data.manualRows : [{ name: '', type: 'service', price: '' }]).forEach(d => addManualRow(null, d));
-
       updateTotal();
     }
-
     function addNewGuitar() {
       const name = prompt("Введите название нового инструмента (можно оставить пустым):") || `Инструмент ${Date.now()}`;
       const id = 'guitar_' + Date.now();
@@ -487,7 +490,6 @@
       updateGuitarSelector();
       loadGuitarData(id);
     }
-
     function deleteCurrentGuitar() {
       if (currentGuitarId === 'default') {
         alert('Нельзя удалить единственный инструмент. Сначала добавьте другой.');
@@ -502,7 +504,6 @@
         loadGuitarData(ids[0]);
       }
     }
-
     function clearCurrentGuitar() {
       if (confirm(`Очистить все данные для "${document.getElementById('guitar-name').value || 'этого инструмента'}"?`)) {
         const all = getAllGuitars();
@@ -511,7 +512,6 @@
         loadGuitarData(currentGuitarId);
       }
     }
-
     function updateGuitarSelector() {
       const selector = document.getElementById('guitar-selector');
       const all = getAllGuitars();
@@ -524,16 +524,13 @@
       });
       selector.value = currentGuitarId;
     }
-
     function updateTotal() {
       let totalServices = 0;
       let totalPrepayments = 0;
-
       document.querySelectorAll('#service-rows .row').forEach(row => {
         const price = parseInt(row.querySelector('.price-input').value) || 0;
         if (price > 0) totalServices += price;
       });
-
       document.querySelectorAll('#manual-rows .row').forEach(row => {
         const name = row.querySelector('.manual-name').value.trim();
         const price = parseInt(row.querySelector('.price-input').value) || 0;
@@ -543,25 +540,20 @@
           else totalServices += price;
         }
       });
-
       const discount = parseFloat(document.getElementById('discount-input').value) || 0;
       const clampedDiscount = Math.max(0, Math.min(100, discount));
       const totalAfterDiscount = totalServices * (1 - clampedDiscount / 100);
       const finalTotal = totalAfterDiscount - totalPrepayments;
-
       document.getElementById('total').textContent = Math.round(finalTotal);
     }
-
     function generatePreview() {
       const preview = document.getElementById('preview');
       let html = '<h2>Прейскурант работ</h2>';
       let hasItems = false;
-
       const guitarName = document.getElementById('guitar-name').value.trim();
       if (guitarName) {
         html += `<div class="item" style="font-weight:bold; border-bottom:2px solid #333; padding-bottom:8px;"><span>Гитара:</span> <span>${guitarName}</span></div>`;
       }
-
       document.querySelectorAll('#service-rows .row').forEach(row => {
         const name = row.querySelector('.service-select').value;
         const price = parseInt(row.querySelector('.price-input').value);
@@ -570,7 +562,6 @@
           hasItems = true;
         }
       });
-
       document.querySelectorAll('#manual-rows .row').forEach(row => {
         const name = row.querySelector('.manual-name').value.trim();
         const price = parseInt(row.querySelector('.price-input').value);
@@ -581,7 +572,6 @@
           hasItems = true;
         }
       });
-
       const discount = parseFloat(document.getElementById('discount-input').value) || 0;
       if (discount > 0 && hasItems) {
         const totalServices = [...document.querySelectorAll('#service-rows .row')]
@@ -598,7 +588,6 @@
         const discountAmount = Math.round(totalServices * (discount / 100));
         html += `<div class="item"><span>Скидка (${discount}%)</span> <span>–${discountAmount} ₽</span></div>`;
       }
-
       if (!hasItems) {
         html += '<p>Нет работ для отображения</p>';
       } else {
@@ -606,12 +595,10 @@
         const totalSign = total >= 0 ? '' : '-';
         html += `<div class="total">Итого: ${totalSign}${Math.abs(total)} ₽</div>`;
       }
-
       preview.innerHTML = html;
       preview.style.display = 'block';
       preview.scrollIntoView({ behavior: 'smooth' });
     }
-
     document.addEventListener('DOMContentLoaded', () => {
       updateGuitarSelector();
       loadGuitarData('default');
