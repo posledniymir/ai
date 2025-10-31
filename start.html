@@ -14,6 +14,7 @@
       --fm-border: #444;
       --fm-accent: #03DAC6;       /* teal */
       --fm-accent-secondary: #BB86FC; /* purple */
+      --fm-pink: #CF6679;         /* pink */
       --fm-text: #E0E0E0;
       --fm-text-secondary: #AAA;
       --font-primary: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -34,11 +35,25 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #particles-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
     }
 
     .container {
       max-width: 600px;
       width: 100%;
+      position: relative;
+      z-index: 2;
     }
 
     header {
@@ -111,6 +126,8 @@
       text-align: center;
       font-size: 12px;
       color: var(--fm-text-secondary);
+      position: relative;
+      z-index: 2;
     }
 
     @media (max-width: 600px) {
@@ -125,6 +142,8 @@
   </style>
 </head>
 <body>
+  <canvas id="particles-canvas"></canvas>
+
   <div class="container">
     <header>
       <h1>FM Portal</h1>
@@ -196,8 +215,7 @@
     </a>
 
     <!-- 
-      🔜 ЗАГОТОВКА: Пятая ссылка (раскомментируйте, когда понадобится)
-      Пример: инструмент для работы с текстом / заметками
+      🔜 ЗАГОТОВКА: Пятая ссылка
     -->
     <!--
     <a href="notes_tool.html" class="link-card">
@@ -217,8 +235,7 @@
     -->
 
     <!-- 
-      🔜 ЗАГОТОВКА: Шестая ссылка (раскомментируйте, когда понадобится)
-      Пример: архив или библиотека
+      🔜 ЗАГОТОВКА: Шестая ссылка
     -->
     <!--
     <a href="archive.html" class="link-card">
@@ -240,5 +257,102 @@
   <footer>
     гитарный суетолог
   </footer>
+
+  <script>
+    // FM-стиль: частицы + линии в вашей палитре
+    const colors = ['#BB86FC', '#03DAC6', '#CF6679'];
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const connectionDistance = 120;
+    let animationFrameId;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 1.8 + 0.7;
+        this.speedX = (Math.random() - 0.5) * 0.8;
+        this.speedY = (Math.random() - 0.5) * 0.8;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+        if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+
+        if (this.x > canvas.width) this.x = canvas.width;
+        if (this.x < 0) this.x = 0;
+        if (this.y > canvas.height) this.y = canvas.height;
+        if (this.y < 0) this.y = 0;
+      }
+
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      particles = [];
+      const count = Math.min(Math.floor((canvas.width * canvas.height) / 4000), 80);
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function drawConnections() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < connectionDistance) {
+            const alpha = 1 - distance / connectionDistance;
+            ctx.strokeStyle = particles[i].color;
+            ctx.lineWidth = 0.4;
+            ctx.globalAlpha = alpha * 0.3;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function animate() {
+      // 🔲 Статичный фон — НИКАКОГО посветления
+      ctx.fillStyle = '#121212';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => p.update());
+      drawConnections();
+      particles.forEach(p => p.draw());
+
+      animationFrameId = requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      initParticles();
+    });
+
+    resizeCanvas();
+    initParticles();
+    animate();
+  </script>
 </body>
 </html>
