@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <!-- Основные метаданные и настройки страницы -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#121212">
     <title>Стандартизация описаний товаров</title>
+
+    <!-- Подключение шрифта Raleway -->
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        /* === Цветовая и типографическая тема (вдохновлено FM-синтезаторами) === */
         :root {
             --fm-bg: #121212;
             --fm-card: #1e1e1e;
             --fm-block: #2a2a2a;
             --fm-input: #2d2d2d;
             --fm-border: #444;
-            --fm-accent: #03DAC6;
-            --fm-accent-secondary: #BB86FC;
-            --fm-pink: #CF6679;
+            --fm-accent: #03DAC6;          /* бирюзовый */
+            --fm-accent-secondary: #BB86FC; /* фиолетовый */
+            --fm-pink: #CF6679;            /* розовый */
             --fm-text: #E0E0E0;
             --fm-text-secondary: #AAA;
             --font-primary: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
+        /* === Сброс стилей и общие настройки === */
         * {
             margin: 0;
             padding: 0;
@@ -38,6 +44,7 @@
             overflow: hidden;
         }
 
+        /* === Фон с анимированными частицами (Verter_FM) === */
         #particles-canvas {
             position: fixed;
             top: 0;
@@ -48,6 +55,7 @@
             pointer-events: none;
         }
 
+        /* === Основной контейнер формы === */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -59,6 +67,7 @@
             z-index: 2;
         }
 
+        /* === Шапка приложения === */
         .header {
             background: var(--fm-block);
             padding: 25px;
@@ -78,10 +87,12 @@
             font-size: 16px;
         }
 
+        /* === Контейнер формы === */
         .form-container {
             padding: 25px;
         }
 
+        /* === Группы полей формы === */
         .form-group {
             margin-bottom: 25px;
         }
@@ -99,6 +110,7 @@
             margin-bottom: 8px;
         }
 
+        /* === Стили полей ввода (уменьшенный шрифт до 14px) === */
         input, textarea, select {
             width: 100%;
             padding: 12px 15px;
@@ -106,7 +118,7 @@
             border: 1px solid var(--fm-border);
             border-radius: 8px;
             color: var(--fm-text);
-            font-size: 15px;
+            font-size: 14px; /* ← уменьшено с 15px до 14px */
             font-family: var(--font-primary);
             transition: all 0.25s ease;
         }
@@ -122,6 +134,7 @@
             min-height: 80px;
         }
 
+        /* === Сетка для технических характеристик (цвет и страна) === */
         .specs-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -134,6 +147,7 @@
             flex-direction: column;
         }
 
+        /* === Кнопки действия === */
         .buttons {
             display: flex;
             gap: 15px;
@@ -158,7 +172,7 @@
         .btn-primary {
             background: var(--fm-accent);
             color: #000;
-            flex: 2;
+            flex: 1; /* Теперь одна кнопка — flex:1 */
             box-shadow: 0 0 8px rgba(3, 218, 198, 0.4);
         }
 
@@ -166,64 +180,7 @@
             box-shadow: 0 0 12px rgba(3, 218, 198, 0.6);
         }
 
-        .btn-secondary {
-            background: var(--fm-accent-secondary);
-            color: #000;
-            flex: 1;
-            box-shadow: 0 0 8px rgba(187, 134, 252, 0.4);
-        }
-
-        .btn-secondary:hover {
-            box-shadow: 0 0 12px rgba(187, 134, 252, 0.6);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--fm-card);
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--fm-accent);
-        }
-
-        .close {
-            background: none;
-            border: none;
-            color: var(--fm-text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .config-section {
-            margin-bottom: 20px;
-        }
-
+        /* === Уведомления (toast) === */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -245,6 +202,7 @@
             opacity: 1;
         }
 
+        /* === Адаптивность для мобильных устройств === */
         @media (max-width: 768px) {
             .specs-grid {
                 grid-template-columns: 1fr;
@@ -254,6 +212,7 @@
             }
         }
 
+        /* === Стили для SVG-иконок (Lucide-подобный стиль) === */
         svg {
             width: 18px;
             height: 18px;
@@ -266,8 +225,10 @@
     </style>
 </head>
 <body>
+    <!-- Анимированный фон с частицами -->
     <canvas id="particles-canvas"></canvas>
 
+    <!-- Основная форма приложения -->
     <div class="container">
         <div class="header">
             <h1>Стандартизация описаний товаров</h1>
@@ -275,22 +236,26 @@
         </div>
 
         <div class="form-container">
+            <!-- Поле: Заголовок -->
             <div class="form-group">
                 <label for="title">Заголовок</label>
                 <input type="text" id="title" placeholder="Введите название товара">
             </div>
 
+            <!-- Поле: Вступительная часть -->
             <div class="form-group">
                 <label for="intro">Вступительная часть</label>
                 <textarea id="intro" placeholder="Введите краткое описание товара" rows="3"></textarea>
             </div>
 
+            <!-- Поле: Основные характеристики -->
             <div class="form-group">
                 <label for="mainFeatures">Основные характеристики</label>
                 <div class="hint">Каждая характеристика с новой строки</div>
                 <textarea id="mainFeatures" placeholder="Введите основные характеристики товара" rows="4"></textarea>
             </div>
 
+            <!-- Поле: Технические характеристики + выпадающие списки -->
             <div class="form-group">
                 <label for="techSpecs">Технические характеристики</label>
                 <div class="hint">Каждая характеристика с новой строки</div>
@@ -300,19 +265,20 @@
                     <div class="spec-item">
                         <label for="color">Цвет</label>
                         <select id="color">
-                            <option value="">Выберите цвет</option>
+                            <option value="">Загрузка...</option>
                         </select>
                     </div>
 
                     <div class="spec-item">
                         <label for="country">Страна происхождения</label>
                         <select id="country">
-                            <option value="">Выберите страну</option>
+                            <option value="">Загрузка...</option>
                         </select>
                     </div>
                 </div>
             </div>
 
+            <!-- Кнопка копирования (осталась только она) -->
             <div class="buttons">
                 <button class="btn btn-primary" id="copyBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -321,45 +287,14 @@
                     </svg>
                     Копировать в буфер обмена
                 </button>
-                <button class="btn btn-secondary" id="configBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                    </svg>
-                    Редактировать конфигурацию
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно -->
-    <div class="modal" id="configModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Редактирование конфигурации</div>
-                <button class="close" id="closeModal">&times;</button>
-            </div>
-
-            <div class="config-section">
-                <label for="colorsInput">Цвета (каждый с новой строки)</label>
-                <textarea id="colorsInput" rows="5" placeholder="Красный&#10;Синий&#10;Зеленый"></textarea>
-            </div>
-
-            <div class="config-section">
-                <label for="countriesInput">Страны (каждая с новой строки)</label>
-                <textarea id="countriesInput" rows="5" placeholder="Россия&#10;Китай&#10;Германия"></textarea>
-            </div>
-
-            <div class="buttons">
-                <button class="btn btn-primary" id="saveConfig">Сохранить</button>
-                <button class="btn btn-secondary" id="cancelConfig">Отмена</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Уведомление о копировании -->
     <div class="toast" id="toast">Текст скопирован в буфер обмена!</div>
 
-    <!-- Verter_FM Animated Background -->
+    <!-- === Анимированный фон с частицами (Verter_FM) === -->
     <script>
         const colors = ['#BB86FC', '#03DAC6', '#CF6679'];
         const canvas = document.getElementById('particles-canvas');
@@ -455,45 +390,51 @@
         animate();
     </script>
 
-    <!-- Основной JS (без изменений) -->
+    <!-- === Основная логика приложения === -->
     <script>
+        // Конфигурация по умолчанию (на случай, если product_config.json недоступен)
         let config = {
             colors: ["Красный", "Синий", "Зеленый", "Черный", "Белый", "Серый"],
             countries: ["Россия", "Китай", "Германия", "США", "Япония", "Италия"]
         };
 
+        // Загрузка конфигурации из product_config.json
         async function loadConfig() {
             try {
                 const response = await fetch('product_config.json');
                 if (response.ok) {
                     const externalConfig = await response.json();
                     config = {
-                        colors: [...new Set([...config.colors, ...externalConfig.colors])],
-                        countries: [...new Set([...config.countries, ...externalConfig.countries])]
+                        colors: externalConfig.colors || config.colors,
+                        countries: externalConfig.countries || config.countries
                     };
+                } else {
+                    console.warn('Файл product_config.json не найден. Используются значения по умолчанию.');
                 }
             } catch (error) {
-                console.log('Внешний файл конфигурации не найден, используются значения по умолчанию');
+                console.error('Ошибка при загрузке product_config.json:', error);
             }
             updateDropdowns();
         }
 
-        function saveConfig() {
-            localStorage.setItem('productConfig', JSON.stringify(config));
-            updateDropdowns();
-        }
-
+        // Обновление выпадающих списков на основе config
         function updateDropdowns() {
             const colorSelect = document.getElementById('color');
             const countrySelect = document.getElementById('country');
-            while (colorSelect.children.length > 1) colorSelect.removeChild(colorSelect.lastChild);
-            while (countrySelect.children.length > 1) countrySelect.removeChild(countrySelect.lastChild);
+
+            // Очистка (оставляем только первую опцию)
+            colorSelect.innerHTML = '<option value="">Выберите цвет</option>';
+            countrySelect.innerHTML = '<option value="">Выберите страну</option>';
+
+            // Заполнение цветов
             config.colors.forEach(color => {
                 const option = document.createElement('option');
                 option.value = color;
                 option.textContent = color;
                 colorSelect.appendChild(option);
             });
+
+            // Заполнение стран
             config.countries.forEach(country => {
                 const option = document.createElement('option');
                 option.value = country;
@@ -502,11 +443,16 @@
             });
         }
 
+        // Форматирование текста в виде маркированного списка
         function formatAsBullets(text) {
             if (!text.trim()) return '';
-            return text.split('\n').filter(line => line.trim()).map(line => `• ${line.trim()}`).join('\n');
+            return text.split('\n')
+                      .filter(line => line.trim())
+                      .map(line => `• ${line.trim()}`)
+                      .join('\n');
         }
 
+        // Копирование результата в буфер обмена
         function copyToClipboard() {
             const title = document.getElementById('title').value.trim();
             const intro = document.getElementById('intro').value.trim();
@@ -546,6 +492,7 @@
             });
         }
 
+        // Показ уведомления
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -554,36 +501,10 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function openConfigModal() {
-            document.getElementById('colorsInput').value = config.colors.join('\n');
-            document.getElementById('countriesInput').value = config.countries.join('\n');
-            document.getElementById('configModal').style.display = 'flex';
-        }
-
-        function closeConfigModal() {
-            document.getElementById('configModal').style.display = 'none';
-        }
-
-        function saveNewConfig() {
-            const colorsText = document.getElementById('colorsInput').value;
-            const countriesText = document.getElementById('countriesInput').value;
-            config.colors = colorsText.split('\n').map(c => c.trim()).filter(c => c);
-            config.countries = countriesText.split('\n').map(c => c.trim()).filter(c => c);
-            saveConfig();
-            closeConfigModal();
-            showToast('Конфигурация сохранена!');
-        }
-
+        // Инициализация приложения
         document.addEventListener('DOMContentLoaded', function() {
-            loadConfig();
+            loadConfig(); // Загружаем конфиг из product_config.json
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
-            document.getElementById('configBtn').addEventListener('click', openConfigModal);
-            document.getElementById('closeModal').addEventListener('click', closeConfigModal);
-            document.getElementById('cancelConfig').addEventListener('click', closeConfigModal);
-            document.getElementById('saveConfig').addEventListener('click', saveNewConfig);
-            document.getElementById('configModal').addEventListener('click', e => {
-                if (e.target === e.currentTarget) closeConfigModal();
-            });
         });
     </script>
 </body>
