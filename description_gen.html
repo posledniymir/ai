@@ -75,6 +75,18 @@
             border-bottom: 1px solid var(--fm-border);
         }
 
+        /* === Анимация плавного появления заголовка === */
+        .fade-in-title {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .header h1 {
             font-size: 28px;
             font-weight: 700;
@@ -118,7 +130,7 @@
             border: 1px solid var(--fm-border);
             border-radius: 8px;
             color: var(--fm-text);
-            font-size: 14px; /* ← уменьшено с 15px до 14px */
+            font-size: 14px;
             font-family: var(--font-primary);
             transition: all 0.25s ease;
         }
@@ -172,7 +184,7 @@
         .btn-primary {
             background: var(--fm-accent);
             color: #000;
-            flex: 1; /* Теперь одна кнопка — flex:1 */
+            flex: 1;
             box-shadow: 0 0 8px rgba(3, 218, 198, 0.4);
         }
 
@@ -231,7 +243,8 @@
     <!-- Основная форма приложения -->
     <div class="container">
         <div class="header">
-            <h1>Стандартизация описаний товаров</h1>
+            <!-- Заголовок с анимацией появления -->
+            <h1 id="main-title" class="fade-in-title">Стандартизация описаний товаров</h1>
             <p>Заполните информацию о товаре для создания стандартизированного описания</p>
         </div>
 
@@ -278,7 +291,7 @@
                 </div>
             </div>
 
-            <!-- Кнопка копирования (осталась только она) -->
+            <!-- Кнопка копирования -->
             <div class="buttons">
                 <button class="btn btn-primary" id="copyBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -390,120 +403,119 @@
         animate();
     </script>
 
-    <!-- === Основная логика приложения === -->
+    <!-- === Основная логика приложения + анимация заголовка === -->
     <script>
-        // Конфигурация по умолчанию (на случай, если product_config.json недоступен)
-        let config = {
-            colors: ["Красный", "Синий", "Зеленый", "Черный", "Белый", "Серый"],
-            countries: ["Россия", "Китай", "Германия", "США", "Япония", "Италия"]
-        };
-
-        // Загрузка конфигурации из product_config.json
-        async function loadConfig() {
-            try {
-                const response = await fetch('product_config.json');
-                if (response.ok) {
-                    const externalConfig = await response.json();
-                    config = {
-                        colors: externalConfig.colors || config.colors,
-                        countries: externalConfig.countries || config.countries
-                    };
-                } else {
-                    console.warn('Файл product_config.json не найден. Используются значения по умолчанию.');
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке product_config.json:', error);
-            }
-            updateDropdowns();
-        }
-
-        // Обновление выпадающих списков на основе config
-        function updateDropdowns() {
-            const colorSelect = document.getElementById('color');
-            const countrySelect = document.getElementById('country');
-
-            // Очистка (оставляем только первую опцию)
-            colorSelect.innerHTML = '<option value="">Выберите цвет</option>';
-            countrySelect.innerHTML = '<option value="">Выберите страну</option>';
-
-            // Заполнение цветов
-            config.colors.forEach(color => {
-                const option = document.createElement('option');
-                option.value = color;
-                option.textContent = color;
-                colorSelect.appendChild(option);
-            });
-
-            // Заполнение стран
-            config.countries.forEach(country => {
-                const option = document.createElement('option');
-                option.value = country;
-                option.textContent = country;
-                countrySelect.appendChild(option);
-            });
-        }
-
-        // Форматирование текста в виде маркированного списка
-        function formatAsBullets(text) {
-            if (!text.trim()) return '';
-            return text.split('\n')
-                      .filter(line => line.trim())
-                      .map(line => `• ${line.trim()}`)
-                      .join('\n');
-        }
-
-        // Копирование результата в буфер обмена
-        function copyToClipboard() {
-            const title = document.getElementById('title').value.trim();
-            const intro = document.getElementById('intro').value.trim();
-            const mainFeatures = document.getElementById('mainFeatures').value.trim();
-            const techSpecs = document.getElementById('techSpecs').value.trim();
-            const color = document.getElementById('color').value;
-            const country = document.getElementById('country').value;
-
-            const resultParts = [];
-            if (title) resultParts.push(title);
-            if (intro) resultParts.push(intro);
-            if (mainFeatures) {
-                resultParts.push('Основные характеристики:');
-                resultParts.push(formatAsBullets(mainFeatures));
-            }
-
-            const techParts = [];
-            if (techSpecs) techParts.push(formatAsBullets(techSpecs));
-            if (color) techParts.push(`• Цвет: ${color}`);
-            if (country) techParts.push(`• Страна происхождения: ${country}`);
-            if (techParts.length > 0) {
-                resultParts.push('Технические характеристики:');
-                resultParts.push(techParts.join('\n'));
-            }
-
-            if (resultParts.length === 0) {
-                showToast('Заполните хотя бы одно поле!', 'error');
-                return;
-            }
-
-            const resultText = resultParts.join('\n\n');
-            navigator.clipboard.writeText(resultText).then(() => {
-                showToast('Текст скопирован в буфер обмена!');
-            }).catch(err => {
-                console.error('Ошибка копирования: ', err);
-                showToast('Ошибка копирования!', 'error');
-            });
-        }
-
-        // Показ уведомления
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.background = type === 'error' ? '#ef4444' : '#10b981';
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // Инициализация приложения
+        // === Анимация заголовка: добавляем класс .visible после загрузки ===
         document.addEventListener('DOMContentLoaded', function() {
-            loadConfig(); // Загружаем конфиг из product_config.json
+            // Запускаем анимацию заголовка с небольшой задержкой
+            setTimeout(() => {
+                const title = document.getElementById('main-title');
+                if (title) title.classList.add('visible');
+            }, 300);
+
+            // === Остальная логика приложения ===
+            let config = {
+                colors: ["Красный", "Синий", "Зеленый", "Черный", "Белый", "Серый"],
+                countries: ["Россия", "Китай", "Германия", "США", "Япония", "Италия"]
+            };
+
+            async function loadConfig() {
+                try {
+                    const response = await fetch('product_config.json');
+                    if (response.ok) {
+                        const externalConfig = await response.json();
+                        config = {
+                            colors: externalConfig.colors || config.colors,
+                            countries: externalConfig.countries || config.countries
+                        };
+                    } else {
+                        console.warn('Файл product_config.json не найден. Используются значения по умолчанию.');
+                    }
+                } catch (error) {
+                    console.error('Ошибка при загрузке product_config.json:', error);
+                }
+                updateDropdowns();
+            }
+
+            function updateDropdowns() {
+                const colorSelect = document.getElementById('color');
+                const countrySelect = document.getElementById('country');
+
+                colorSelect.innerHTML = '<option value="">Выберите цвет</option>';
+                countrySelect.innerHTML = '<option value="">Выберите страну</option>';
+
+                config.colors.forEach(color => {
+                    const option = document.createElement('option');
+                    option.value = color;
+                    option.textContent = color;
+                    colorSelect.appendChild(option);
+                });
+
+                config.countries.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    countrySelect.appendChild(option);
+                });
+            }
+
+            function formatAsBullets(text) {
+                if (!text.trim()) return '';
+                return text.split('\n')
+                          .filter(line => line.trim())
+                          .map(line => `• ${line.trim()}`)
+                          .join('\n');
+            }
+
+            function copyToClipboard() {
+                const title = document.getElementById('title').value.trim();
+                const intro = document.getElementById('intro').value.trim();
+                const mainFeatures = document.getElementById('mainFeatures').value.trim();
+                const techSpecs = document.getElementById('techSpecs').value.trim();
+                const color = document.getElementById('color').value;
+                const country = document.getElementById('country').value;
+
+                const resultParts = [];
+                if (title) resultParts.push(title);
+                if (intro) resultParts.push(intro);
+                if (mainFeatures) {
+                    resultParts.push('Основные характеристики:');
+                    resultParts.push(formatAsBullets(mainFeatures));
+                }
+
+                const techParts = [];
+                if (techSpecs) techParts.push(formatAsBullets(techSpecs));
+                if (color) techParts.push(`• Цвет: ${color}`);
+                if (country) techParts.push(`• Страна происхождения: ${country}`);
+                if (techParts.length > 0) {
+                    resultParts.push('Технические характеристики:');
+                    resultParts.push(techParts.join('\n'));
+                }
+
+                if (resultParts.length === 0) {
+                    showToast('Заполните хотя бы одно поле!', 'error');
+                    return;
+                }
+
+                const resultText = resultParts.join('\n\n');
+                navigator.clipboard.writeText(resultText).then(() => {
+                    showToast('Текст скопирован в буфер обмена!');
+                }).catch(err => {
+                    console.error('Ошибка копирования: ', err);
+                    showToast('Ошибка копирования!', 'error');
+                });
+            }
+
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.style.background = type === 'error' ? '#ef4444' : '#10b981';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            // Загружаем конфиг и вешаем обработчик на кнопку
+            loadConfig();
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
         });
     </script>
