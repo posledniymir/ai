@@ -26,6 +26,37 @@
       padding: 0;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* === Кастомный скроллбар в стиле FM === */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--fm-bg);
+      border-left: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--fm-accent) 0%, var(--fm-accent-secondary) 100%);
+      border-radius: 10px;
+      border: 2px solid var(--fm-bg);
+      transition: background 0.3s ease;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, var(--fm-accent-secondary) 0%, var(--fm-pink) 100%);
+    }
+
+    /* Для Firefox */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--fm-accent) var(--fm-bg);
+    }
+
     body {
       background-color: var(--fm-bg);
       color: var(--fm-text);
@@ -36,7 +67,8 @@
       flex-direction: column;
       align-items: center;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden; /* только горизонтальный скролл запрещен */
+      overflow-y: auto;   /* вертикальный разрешен */
     }
 
     /* === Анимация главного заголовка === */
@@ -148,6 +180,7 @@
     footer {
       margin-top: auto;
       padding-top: 32px;
+      padding-bottom: 16px;
       text-align: center;
       font-size: 12px;
       color: var(--fm-text-secondary);
@@ -286,7 +319,7 @@
       <p>Учет работ по обслуживанию гитар</p>
     </a>
   
-  <!-- 8. Image to Base64 -->
+    <!-- 8. Image to Base64 -->
     <a href="pocket_base64.html" class="link-card">
       <h2 class="card-title">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -301,7 +334,6 @@
       </h2>
       <p>Пакетный конвертер изображений в Base64 формат</p>
     </a>
-  
   
   </div>
 
