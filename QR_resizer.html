@@ -145,7 +145,7 @@
         .form-row {
             display: flex;
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             align-items: flex-end;
         }
 
@@ -200,7 +200,11 @@
             user-select: none;
         }
 
-        /* === Зона загрузки === */
+        /* === Зона загрузки (Полностью кастомная) === */
+        .upload-container {
+            margin-bottom: 20px;
+        }
+
         .drop-zone {
             border: 2px dashed var(--fm-border);
             background: var(--fm-block);
@@ -208,44 +212,92 @@
             padding: 32px 24px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.25s ease;
-            margin-bottom: 20px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
         }
 
         .drop-zone:hover, .drop-zone.dragover {
             border-color: var(--fm-accent);
             background: rgba(3, 218, 198, 0.05);
+            transform: translateY(-2px);
         }
 
-        .drop-zone svg {
+        .drop-zone svg.main-icon {
             color: var(--fm-text-secondary);
             margin-bottom: 12px;
-            transition: color 0.2s;
+            transition: color 0.3s ease;
         }
 
-        .drop-zone:hover svg {
+        .drop-zone:hover svg.main-icon, .drop-zone.dragover svg.main-icon {
             color: var(--fm-accent);
         }
 
-        .drop-zone p {
-            font-size: 14px;
+        .drop-text {
+            font-size: 15px;
+            color: var(--fm-text);
+            margin-bottom: 4px;
+        }
+
+        .drop-subtext {
+            font-size: 13px;
             color: var(--fm-text-secondary);
+            margin-bottom: 16px;
         }
 
-        .drop-zone .highlight {
+        /* Кастомная кнопка выбора файлов */
+        .upload-btn {
+            background: var(--fm-input);
             color: var(--fm-accent);
+            border: 1px solid var(--fm-accent);
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-family: var(--font-primary);
+            font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .upload-btn:hover {
+            background: var(--fm-accent);
+            color: #121212;
+            box-shadow: 0 4px 12px rgba(3, 218, 198, 0.25);
+        }
+
+        /* Надежное скрытие системного input */
+        .hidden-input {
+            position: absolute;
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
         }
 
         .file-count {
-            font-size: 14px;
-            color: var(--fm-accent);
-            font-weight: 600;
             margin-top: 12px;
+            font-size: 14px;
+            color: var(--fm-text-secondary);
             display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        /* === Кнопка === */
+        .file-count span {
+            color: var(--fm-accent);
+            font-weight: 700;
+            background: rgba(3, 218, 198, 0.1);
+            padding: 2px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(3, 218, 198, 0.2);
+        }
+
+        /* === Кнопка действия === */
         .btn-primary {
             background: var(--fm-accent);
             color: #121212;
@@ -369,13 +421,27 @@
                 </div>
             </div>
 
-            <div class="drop-zone" id="dropZone">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <p><span class="highlight">Нажмите для выбора</span> или перетащите файлы PDF</p>
-                <input id="fileInput" type="file" class="hidden" accept=".pdf" multiple />
+            <div class="upload-container">
+                <div class="drop-zone" id="dropZone">
+                    <svg class="main-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="drop-text">Перетащите файлы PDF сюда</p>
+                    <p class="drop-subtext">или</p>
+                    <button type="button" class="upload-btn" id="uploadBtnTrigger">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Выбрать файлы
+                    </button>
+                    <!-- Системный input надежно скрыт, но функционален -->
+                    <input id="fileInput" type="file" class="hidden-input" accept=".pdf" multiple />
+                </div>
+                
+                <div id="fileCount" class="file-count">
+                    Выбрано файлов: <span id="countValue">0</span>
+                </div>
             </div>
-            
-            <div id="fileCount" class="file-count">Выбрано файлов: <span id="countValue">0</span></div>
 
             <button id="processBtn" class="btn-primary" disabled>
                 <span>🚀 Обработать и скачать ZIP</span>
@@ -436,7 +502,7 @@
                 if (this.y < 0) this.y = canvas.height;
             }
             draw() {
-                ctx.fillStyle = `rgba(3, 218, 198, ${this.opacity})`; // fm-accent color
+                ctx.fillStyle = `rgba(3, 218, 198, ${this.opacity})`;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -445,7 +511,7 @@
 
         function initParticles() {
             particles = [];
-            const count = Math.min(window.innerWidth / 10, 100); // Адаптивное количество
+            const count = Math.min(window.innerWidth / 10, 100);
             for (let i = 0; i < count; i++) {
                 particles.push(new Particle());
             }
@@ -466,6 +532,7 @@
         // === Логика приложения ===
         const fileInput = document.getElementById('fileInput');
         const dropZone = document.getElementById('dropZone');
+        const uploadBtnTrigger = document.getElementById('uploadBtnTrigger');
         const fileCount = document.getElementById('fileCount');
         const countValue = document.getElementById('countValue');
         const processBtn = document.getElementById('processBtn');
@@ -476,9 +543,17 @@
 
         let selectedFiles = [];
 
-        // Drag & Drop
-        dropZone.addEventListener('click', () => fileInput.click());
+        // Обработка кликов по зоне загрузки и кнопке
+        uploadBtnTrigger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Предотвращаем двойной вызов
+            fileInput.click();
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
         
+        // Drag & Drop
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('dragover');
@@ -504,7 +579,7 @@
         function handleFiles(files) {
             selectedFiles = files;
             if (selectedFiles.length > 0) {
-                fileCount.style.display = 'block';
+                fileCount.style.display = 'flex';
                 countValue.textContent = selectedFiles.length;
                 processBtn.disabled = false;
             } else {
