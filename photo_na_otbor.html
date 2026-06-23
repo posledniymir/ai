@@ -4,52 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Фото на отбор</title>
+    
+    <!-- Подключение шрифта Raleway -->
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Подключение внешнего FM-стиля -->
+    <link rel="stylesheet" href="fm-style.css">
+    
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: #0a0a0a;
-            color: #e0e0e0;
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
+        /* =========================================
+           Специфичные стили для страницы "Фото на отбор"
+           ========================================= */
+
+        /* Переопределяем ширину контейнера, так как таблица широкая */
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-            background-color: #1a1a1a;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background-color: var(--fm-card);
+            border: 1px solid var(--fm-border);
             padding: 30px;
-            overflow: hidden;
-            border: 1px solid #333;
         }
-        
+
         header {
-            text-align: center;
-            margin-bottom: 30px;
+            border-bottom: 1px solid var(--fm-border);
             padding-bottom: 20px;
-            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
         }
-        
-        h1 {
-            color: #ffffff;
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+
+        /* Базовый класс кнопки для этой страницы */
+        /* Анимация ТОЛЬКО через box-shadow (как .preview-btn из guitar_sueta) */
+        .btn {
+            background: var(--fm-block);
+            color: var(--fm-text);
+            border: 1px solid var(--fm-border);
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: var(--font-primary);
+            transition: box-shadow 0.25s ease; /* ← только тень, без transform */
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .subtitle {
-            color: #b0b0b0;
-            font-size: 1.1rem;
+
+        .btn:hover {
+            /* Убран transform: translateY(-2px); */
+            /* Убран box-shadow: 0 7px 14px... — теперь тень задаётся в цветных классах */
         }
-        
+
+        .btn:active {
+            /* Убран transform: translateY(1px); */
+        }
+
+        /* Цветные вариации кнопок в стиле FM (анимация через свечение) */
+        .btn-export {
+            background: var(--fm-accent);
+            color: #000;
+            border-color: var(--fm-accent);
+            box-shadow: 0 0 8px rgba(3, 218, 198, 0.4);
+        }
+        .btn-export:hover {
+            box-shadow: 0 0 12px rgba(3, 218, 198, 0.6);
+        }
+
+        .btn-reset {
+            background: var(--fm-pink);
+            color: #000;
+            border-color: var(--fm-pink);
+            box-shadow: 0 0 8px rgba(207, 102, 121, 0.4);
+        }
+        .btn-reset:hover {
+            box-shadow: 0 0 12px rgba(207, 102, 121, 0.6);
+        }
+
+        .btn-copy {
+            background: var(--fm-accent-secondary);
+            color: #000;
+            border-color: var(--fm-accent-secondary);
+            box-shadow: 0 0 8px rgba(187, 134, 252, 0.4);
+        }
+        .btn-copy:hover {
+            box-shadow: 0 0 12px rgba(187, 134, 252, 0.6);
+        }
+
         .controls {
             display: flex;
             justify-content: center;
@@ -57,179 +94,104 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-        
-        .btn {
-            background: #333;
-            color: #e0e0e0;
-            border: 1px solid #444;
-            padding: 12px 25px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        
-        .btn:hover {
-            background: #444;
-            transform: translateY(-2px);
-            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.4);
-            border-color: #555;
-        }
-        
-        .btn:active {
-            transform: translateY(1px);
-        }
-        
-        .btn-export {
-            background: #2d5016;
-            border-color: #3a6620;
-        }
-        
-        .btn-export:hover {
-            background: #3a6620;
-            border-color: #477a27;
-        }
-        
-        .btn-reset {
-            background: #5c1a1a;
-            border-color: #742020;
-        }
-        
-        .btn-reset:hover {
-            background: #742020;
-            border-color: #8b2626;
-        }
-        
-        .btn-copy {
-            background: #1a3c5c;
-            border-color: #204a6e;
-        }
-        
-        .btn-copy:hover {
-            background: #204a6e;
-            border-color: #265a85;
-        }
-        
+
+        /* Таблица */
         .table-container {
             overflow-x: auto;
             margin-bottom: 25px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            border: 1px solid #333;
+            border: 1px solid var(--fm-border);
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             min-width: 800px;
         }
-        
+
         th, td {
-            border: 1px solid #333;
+            border: 1px solid var(--fm-border);
             padding: 12px 15px;
             text-align: left;
         }
-        
+
         th {
-            background-color: #222;
-            color: #e0e0e0;
+            background-color: var(--fm-block);
+            color: var(--fm-text);
             font-weight: 600;
-            position: relative;
         }
-        
-        th input {
+
+        /* Инпуты внутри таблицы */
+        th input, td input {
             width: 100%;
             padding: 8px;
-            border: 1px solid #444;
-            background: #1a1a1a;
+            border: 1px solid var(--fm-border);
+            background: var(--fm-input);
             border-radius: 4px;
-            font-weight: 600;
-            color: #e0e0e0;
+            color: var(--fm-text);
+            font-family: var(--font-primary);
+            font-size: 14px;
         }
-        
-        th input:focus {
+
+        th input:focus, td input:focus {
             outline: none;
-            border-color: #555;
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+            border-color: var(--fm-accent);
+            box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
         }
-        
+
         tr:nth-child(even) {
-            background-color: #1e1e1e;
+            background-color: rgba(255, 255, 255, 0.02);
         }
-        
+
         tr:hover {
-            background-color: #252525;
+            background-color: rgba(255, 255, 255, 0.05);
         }
-        
-        td {
-            position: relative;
-        }
-        
-        td input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #333;
-            background: #1a1a1a;
-            border-radius: 4px;
-            transition: border 0.3s;
-            color: #e0e0e0;
-        }
-        
-        td input:focus {
-            border-color: #444;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-        }
-        
+
+        /* Инструкции */
         .instructions {
-            background: #1e1e1e;
+            background: var(--fm-block);
             padding: 20px;
             border-radius: 8px;
             margin-top: 25px;
-            border-left: 4px solid #333;
+            border-left: 4px solid var(--fm-accent-secondary);
         }
-        
+
         .instructions h3 {
-            color: #e0e0e0;
+            color: var(--fm-accent);
             margin-bottom: 10px;
         }
-        
-        .instructions ul {
-            padding-left: 20px;
-        }
-        
+
         .instructions li {
             margin-bottom: 8px;
-            color: #b0b0b0;
+            color: var(--fm-text-secondary);
         }
-        
-        .icon {
-            font-size: 18px;
-        }
-        
+
+        /* Уведомления */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #2d5016;
-            color: white;
+            background: var(--fm-accent);
+            color: #000;
             padding: 15px 25px;
             border-radius: 6px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             transform: translateX(150%);
             transition: transform 0.3s ease;
             z-index: 1000;
+            font-weight: bold;
         }
-        
+
         .notification.show {
             transform: translateX(0);
         }
-        
+
+        .notification.error {
+            background: var(--fm-pink);
+        }
+
+        /* Адаптив */
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -238,10 +200,6 @@
             .btn {
                 width: 100%;
                 justify-content: center;
-            }
-            
-            h1 {
-                font-size: 2rem;
             }
             
             .notification {
@@ -253,6 +211,9 @@
     </style>
 </head>
 <body>
+    <!-- Фон с частицами -->
+    <canvas id="particles-canvas"></canvas>
+
     <div class="container">
         <header>
             <h1>Фото на отбор</h1>
@@ -304,7 +265,102 @@
     <div class="notification" id="notification"></div>
 
     <script>
-        // Инициализация таблицы
+        // === FM Animated Background Particles ===
+        const colors = ['#BB86FC', '#03DAC6', '#CF6679'];
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const connectionDistance = 120;
+        let animationFrameId;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.8 + 0.7;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+
+                if (this.x > canvas.width) this.x = canvas.width;
+                if (this.x < 0) this.x = 0;
+                if (this.y > canvas.height) this.y = canvas.height;
+                if (this.y < 0) this.y = 0;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.min(Math.floor((canvas.width * canvas.height) / 4000), 80);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function drawConnections() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < connectionDistance) {
+                        const alpha = 1 - distance / connectionDistance;
+                        ctx.strokeStyle = particles[i].color;
+                        ctx.lineWidth = 0.4;
+                        ctx.globalAlpha = alpha * 0.3;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function animate() {
+            ctx.fillStyle = '#121212';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => p.update());
+            drawConnections();
+            particles.forEach(p => p.draw());
+
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+
+        resizeCanvas();
+        initParticles();
+        animate();
+        // === End FM Background ===
+
+        // === Original App Logic ===
         document.addEventListener('DOMContentLoaded', function() {
             const tableBody = document.querySelector('#dataTable tbody');
             
@@ -325,13 +381,9 @@
                 tableBody.appendChild(row);
             }
             
-            // Обработчик для кнопки экспорта
+            // Обработчики кнопок
             document.getElementById('exportBtn').addEventListener('click', exportToTxt);
-            
-            // Обработчик для кнопки копирования
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
-            
-            // Обработчик для кнопки сброса
             document.getElementById('resetBtn').addEventListener('click', resetTable);
         });
         
@@ -341,7 +393,6 @@
             const headers = [];
             const columns = [];
             
-            // Получаем заголовки
             const headerInputs = table.querySelectorAll('thead th input');
             headerInputs.forEach(input => {
                 const value = input.value.trim();
@@ -352,25 +403,21 @@
                 }
             });
             
-            // Инициализируем массивы для каждого столбца
             for (let i = 0; i < headers.length; i++) {
                 columns.push([]);
             }
             
-            // Получаем данные из таблицы по столбцам
             const rows = table.querySelectorAll('tbody tr');
             rows.forEach(row => {
                 const inputs = row.querySelectorAll('td input');
                 let rowHasData = false;
                 
-                // Проверяем, есть ли данные в строке
                 inputs.forEach(input => {
                     if (input.value.trim() !== '') {
                         rowHasData = true;
                     }
                 });
                 
-                // Если в строке есть данные, добавляем их в соответствующие столбцы
                 if (rowHasData) {
                     inputs.forEach((input, index) => {
                         if (input.value.trim() !== '') {
@@ -387,25 +434,18 @@
         function formatTableData(headers, columns) {
             let txtContent = '';
             
-            // Добавляем данные по столбцам
             for (let i = 0; i < headers.length; i++) {
-                // Добавляем заголовок столбца только если есть данные в столбце
                 if (columns[i].length > 0) {
                     txtContent += headers[i] + '\n';
-                    
-                    // Добавляем данные столбца
                     columns[i].forEach(data => {
                         txtContent += data + '\n';
                     });
-                    
-                    // Добавляем разделитель между столбцами (кроме последнего)
                     if (i < headers.length - 1) {
                         txtContent += '\n';
                     }
                 }
             }
             
-            // Убираем лишние пустые строки в конце файла
             return txtContent.trim();
         }
         
@@ -414,7 +454,6 @@
             const { headers, columns } = getTableData();
             const txtContent = formatTableData(headers, columns);
             
-            // Создаем и скачиваем файл
             const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -425,13 +464,12 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            // Визуальная обратная связь
             showNotification('Файл успешно экспортирован!');
             
             const exportBtn = document.getElementById('exportBtn');
             const originalText = exportBtn.innerHTML;
             exportBtn.innerHTML = '<span class="icon">✅</span> Файл экспортирован!';
-            exportBtn.style.background = '#2d5016';
+            exportBtn.style.background = '#03DAC6'; // FM Teal
             
             setTimeout(() => {
                 exportBtn.innerHTML = originalText;
@@ -444,7 +482,6 @@
             const { headers, columns } = getTableData();
             const txtContent = formatTableData(headers, columns);
             
-            // Используем современный API для копирования в буфер обмена
             navigator.clipboard.writeText(txtContent)
                 .then(() => {
                     showNotification('Данные скопированы в буфер обмена!');
@@ -452,7 +489,7 @@
                     const copyBtn = document.getElementById('copyBtn');
                     const originalText = copyBtn.innerHTML;
                     copyBtn.innerHTML = '<span class="icon">✅</span> Скопировано!';
-                    copyBtn.style.background = '#1a3c5c';
+                    copyBtn.style.background = '#BB86FC'; // FM Purple
                     
                     setTimeout(() => {
                         copyBtn.innerHTML = originalText;
@@ -474,24 +511,21 @@
             const tableBody = document.querySelector('#dataTable tbody');
             const headerInputs = document.querySelectorAll('thead th input');
             
-            // Очищаем заголовки
             headerInputs.forEach(input => {
                 input.value = '';
             });
             
-            // Очищаем данные таблицы
             const inputs = tableBody.querySelectorAll('input');
             inputs.forEach(input => {
                 input.value = '';
             });
             
-            // Визуальная обратная связь
             showNotification('Таблица успешно сброшена!');
             
             const resetBtn = document.getElementById('resetBtn');
             const originalText = resetBtn.innerHTML;
             resetBtn.innerHTML = '<span class="icon">✅</span> Таблица сброшена!';
-            resetBtn.style.background = '#2d5016';
+            resetBtn.style.background = '#03DAC6'; // FM Teal
             
             setTimeout(() => {
                 resetBtn.innerHTML = originalText;
@@ -503,7 +537,12 @@
         function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            notification.style.background = isError ? '#5c1a1a' : '#2d5016';
+            
+            if (isError) {
+                notification.classList.add('error');
+            } else {
+                notification.classList.remove('error');
+            }
             
             notification.classList.add('show');
             
