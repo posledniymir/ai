@@ -1,0 +1,450 @@
+/* =========================================
+   FM Design System - Global Styles
+   ========================================= */
+
+/* 1. CSS Variables (FM Synth Colors) */
+:root {
+  --fm-bg: #121212;
+  --fm-card: #1e1e1e;
+  --fm-block: #2a2a2a;
+  --fm-input: #2d2d2d;
+  --fm-border: #444;
+  --fm-accent: #03DAC6;           /* Teal */
+  --fm-accent-secondary: #BB86FC; /* Purple */
+  --fm-pink: #CF6679;             /* Pink */
+  --fm-text: #E0E0E0;
+  --fm-text-secondary: #AAA;
+  --font-primary: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* 2. Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--fm-accent) var(--fm-bg);
+}
+
+body {
+  background-color: var(--fm-bg);
+  color: var(--fm-text);
+  font-family: var(--font-primary);
+  min-height: 100vh;
+  position: relative;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* 3. Custom Scrollbar (Webkit Browsers) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--fm-bg);
+  border-left: 1px solid rgba(255, 255, 255, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--fm-accent) 0%, var(--fm-accent-secondary) 100%);
+  border-radius: 10px;
+  border: 2px solid var(--fm-bg);
+  transition: background 0.3s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--fm-accent-secondary) 0%, var(--fm-pink) 100%);
+}
+
+/* 4. Background Particles Canvas */
+#particles-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 5. Layout & Containers */
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* Modifier for pages that need a card-like container (like guitar_sueta) */
+.container-card {
+  background: var(--fm-card);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+/* 6. Typography & Headers */
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--fm-accent-secondary);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fm-accent);
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--fm-text-secondary);
+}
+
+.section-title {
+  font-size: 16px;
+  margin-bottom: 14px;
+  color: var(--fm-accent);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 7. Animations */
+.fade-in-title {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-in-title.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-title-text {
+  opacity: 0;
+  transform: translateY(10px);
+  display: inline-block;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.card-title-text.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 8. Link Cards (Portal Page Style) */
+.link-card {
+  display: block;
+  background: var(--fm-card);
+  color: var(--fm-text);
+  text-decoration: none;
+  padding: 18px 24px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid var(--fm-border);
+  position: relative;
+  overflow: hidden;
+}
+.link-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  border-color: var(--fm-accent);
+}
+.link-card h2 {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+.link-card h2 svg {
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.link-card p {
+  font-size: 14px;
+  color: var(--fm-text-secondary);
+  line-height: 1.5;
+}
+
+/* 9. Forms & Inputs */
+select,
+input[type="text"],
+input[type="number"] {
+  background: var(--fm-input);
+  color: var(--fm-text);
+  border: 1px solid var(--fm-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  min-height: 36px;
+  font-family: var(--font-primary);
+}
+
+select:focus,
+input:focus {
+  outline: none;
+  border-color: var(--fm-accent);
+}
+
+/* Specific input classes */
+.guitar-name-input {
+  width: 100%;
+  font-size: 15px;
+  padding: 10px;
+}
+
+.service-select,
+.manual-name,
+.manual-type,
+.price-input {
+  min-width: 0;
+  width: 0;
+  height: 36px;
+}
+
+.service-select,
+.manual-name {
+  flex: 2;
+}
+
+.price-input {
+  flex: 1;
+  text-align: right;
+}
+
+.manual-type {
+  flex: 1;
+  max-width: 140px;
+}
+
+/* 10. Buttons */
+button {
+  font-family: var(--font-primary);
+  cursor: pointer;
+}
+
+.add-btn {
+  background: var(--fm-accent);
+  color: #000;
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(3, 218, 198, 0.4);
+  transition: box-shadow 0.25s ease;
+}
+.add-btn:hover {
+  box-shadow: 0 0 12px rgba(3, 218, 198, 0.6);
+}
+
+.delete-btn {
+  background: var(--fm-pink);
+  color: #000;
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(207, 102, 121, 0.4);
+  transition: box-shadow 0.25s ease;
+}
+.delete-btn:hover {
+  box-shadow: 0 0 12px rgba(207, 102, 121, 0.6);
+}
+
+.clear-btn {
+  background: var(--fm-accent-secondary);
+  color: #000;
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(187, 134, 252, 0.4);
+  transition: box-shadow 0.25s ease;
+}
+.clear-btn:hover {
+  box-shadow: 0 0 12px rgba(187, 134, 252, 0.6);
+}
+
+.preview-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--fm-accent-secondary);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-top: 16px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 0 8px rgba(187, 134, 252, 0.4);
+  transition: box-shadow 0.25s ease;
+}
+.preview-btn:hover {
+  box-shadow: 0 0 12px rgba(187, 134, 252, 0.6);
+}
+
+/* 11. Layout Helpers */
+.guitar-selector-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+#guitar-selector {
+  flex: 3;
+  min-width: 0;
+}
+
+.guitar-name-row {
+  margin-bottom: 20px;
+}
+
+.section {
+  margin-bottom: 28px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.discount-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.discount-label {
+  flex: 2;
+  color: var(--fm-text-secondary);
+  min-width: 0;
+}
+
+#discount-input {
+  flex: 1;
+  min-width: 80px;
+  max-width: 120px;
+}
+
+.total-box {
+  background: var(--fm-block);
+  padding: 14px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--fm-accent);
+}
+
+/* 12. Preview Block (White theme for printing) */
+#preview {
+  display: none;
+  background: white;
+  color: black;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  font-family: 'Helvetica', sans-serif;
+}
+#preview h2 {
+  text-align: center;
+  margin-top: 0;
+  color: #333;
+}
+#preview .item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+#preview .total {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: right;
+  margin-top: 12px;
+  color: #222;
+}
+
+/* 13. Icons (Lucide style defaults) */
+svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 14. Footer */
+footer {
+  margin-top: auto;
+  padding-top: 32px;
+  padding-bottom: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--fm-text-secondary);
+  position: relative;
+  z-index: 2;
+}
+
+/* 15. Media Queries */
+@media (max-width: 600px) {
+  body {
+    padding: 16px;
+  }
+  .link-card {
+    padding: 16px;
+  }
+}
