@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Генератор технических описаний (.docx)</title>
+<link rel="stylesheet" href="fm-style.css">
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  .app-container {
+    max-width: 880px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  textarea {
+    background: var(--fm-input);
+    color: var(--fm-text);
+    border: 1px solid var(--fm-border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: var(--font-primary);
+    resize: vertical;
+    overflow-y: auto;
+    width: 100%;
+    min-height: 36px;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--fm-accent);
+  }
+
+  .fm-label {
+    min-width: 200px;
+    color: var(--fm-text-secondary);
+    font-size: 14px;
+  }
+
+  .fm-block {
+    background: var(--fm-block);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+  }
+
+  .fm-section-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--fm-accent);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .product-card {
+    background: var(--fm-card);
+    border: 1px solid var(--fm-border);
+    border-left: 4px solid var(--fm-accent);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+
+  .product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .product-title-input {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--fm-accent-secondary);
+    background: transparent;
+    border: none;
+    padding: 6px 8px;
+    flex: 1;
+    min-width: 200px;
+    font-family: var(--font-primary);
+    border-radius: 4px;
+  }
+  .product-title-input:focus {
+    outline: none;
+    background: var(--fm-input);
+    border: 1px solid var(--fm-accent);
+  }
+
+  .preview-img {
+    max-width: 200px;
+    max-height: 140px;
+    border-radius: 6px;
+    margin-top: 8px;
+    display: block;
+    border: 1px solid var(--fm-border);
+  }
+
+  .hint {
+    flex-basis: 100%;
+    padding-left: 210px;
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: var(--fm-text-secondary);
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .toolbar button { flex: 1; }
+
+  .export-bar {
+    margin-top: 28px;
+  }
+
+  .empty {
+    text-align: center;
+    color: var(--fm-text-secondary);
+    padding: 30px;
+    font-style: italic;
+  }
+
+  .storage-note {
+    font-size: 12px;
+    color: var(--fm-text-secondary);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .storage-note svg { flex-shrink: 0; }
+
+  input[type="file"] {
+    background: var(--fm-input);
+    color: var(--fm-text);
+    border: 1px solid var(--fm-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: var(--font-primary);
+    font-size: 13px;
+    flex: 1;
+    min-width: 0;
+  }
+  input[type="file"]::file-selector-button {
+    background: var(--fm-accent);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    margin-right: 10px;
+    font-family: var(--font-primary);
+    box-shadow: 0 0 6px rgba(3, 218, 198, 0.4);
+    transition: box-shadow 0.25s ease, background 0.25s ease;
+  }
+  input[type="file"]::file-selector-button:hover {
+    background: var(--fm-accent-secondary);
+    box-shadow: 0 0 10px rgba(187, 134, 252, 0.6);
+  }
+
+  .row { width: 100%; }
+  .row > input[type="text"],
+  .row > select,
+  .row > textarea { flex: 1; min-width: 0; }
+
+  button svg,
+  .fm-label svg {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* ===== АНИМИРОВАННЫЙ ФОН С ЧАСТИЦАМИ ===== */
+  #particles-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* ===== МОДАЛЬНОЕ ОКНО СПРАВКИ ===== */
+  .help-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95); /* 95% непрозрачности */
+    z-index: 1000;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+  .help-modal.active {
+    display: flex;
+  }
+  .help-modal-content {
+    max-width: 720px;
+    width: 100%;
+    color: var(--fm-text);
+    padding: 10px 0;
+  }
+  .help-modal-content h2 {
+    color: var(--fm-accent-secondary);
+    font-size: 28px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .help-section {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .help-section:last-of-type {
+    border-bottom: none;
+  }
+  .help-section h3 {
+    color: var(--fm-accent);
+    font-size: 17px;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .help-section p {
+    color: var(--fm-text);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .help-section code {
+    background: var(--fm-input);
+    color: var(--fm-accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  /* Место для картинки в справке */
+  .help-image-placeholder {
+    margin-top: 12px;
+    min-height: 120px;
+    background: var(--fm-block);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fm-text-secondary);
+    font-size: 12px;
+    font-style: italic;
+  }
+  .help-image-placeholder img {
+    max-width: 100%;
+    border-radius: 8px;
+    display: block;
+  }
+  .help-close-wrap {
+    text-align: center;
+    margin-top: 32px;
+  }
+  .help-close-wrap button {
+    min-width: 200px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Анимированный фон -->
+<canvas id="particles-canvas"></canvas>
+
+<div class="app-container container-card">
+  <header>
+    <h1>Генератор технических описаний</h1>
+    <div class="subtitle">Создание .docx с описаниями товаров</div>
+  </header>
+
+  <!-- ШАПКА ДОКУМЕНТА -->
+  <div class="fm-block">
+    <div class="fm-section-title">Шапка документа</div>
+    <div class="row">
+      <label class="fm-label">Картинка-шапка:</label>
+      <input type="file" id="headerImage" accept="image/*">
+    </div>
+    <img id="headerPreview" class="preview-img" style="display:none;">
+    <div class="row" style="margin-top:12px;">
+      <label class="fm-label">Заголовок под шапкой:</label>
+      <input type="text" id="headerTitle" value="Техническое описание">
+    </div>
+    <div class="storage-note">
+      <i data-lucide="database"></i>
+      Все данные автоматически сохраняются в браузере (localStorage).
+    </div>
+  </div>
+
+  <!-- ТОВАРЫ -->
+  <div class="fm-block">
+    <div class="fm-section-title">Товары</div>
+    <div class="toolbar">
+      <button class="add-btn" onclick="addProduct()">
+        <i data-lucide="plus"></i> Добавить товар
+      </button>
+      <button class="clear-btn" onclick="clearAll()">
+        <i data-lucide="rotate-ccw"></i> Очистить всё
+      </button>
+      <button class="delete-btn" onclick="openHelp()">
+        <i data-lucide="help-circle"></i> Справка
+      </button>
+    </div>
+    <div id="products"></div>
+  </div>
+
+  <!-- ЭКСПОРТ -->
+  <div class="export-bar">
+    <button class="preview-btn" onclick="exportDocx()">
+      <i data-lucide="download"></i> Экспортировать в .docx
+    </button>
+  </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО СПРАВКИ ===== -->
+<div id="helpModal" class="help-modal" onclick="if(event.target===this) closeHelp()">
+  <div class="help-modal-content">
+    <h2>Справка</h2>
+
+    <!-- ПУНКТ 1 -->
+    <div class="help-section">
+      <h3>1. Как загрузить картинку-шапку</h3>
+      <p>
+        В блоке «Шапка документа» нажмите кнопку выбора файла рядом с полем
+        <b>«Картинка-шапка»</b> и выберите изображение (PNG или JPG).
+        Оно появится в документе над заголовком «Техническое описание».
+      </p>
+      <div class="help-image-placeholder">
+        <img src="images/head.png" alt="">
+        
+      </div>
+    </div>
+
+    <!-- ПУНКТ 2 -->
+    <div class="help-section">
+      <h3>2. Как добавить товар</h3>
+      <p>
+        Нажмите кнопку <b>«➕ Добавить товар»</b> в блоке «Товары».
+        Появится новая карточка с полями. В верхней части карточки
+        введите название товара — оно же автоматически подставится в поле
+        «Артикул» (но вы можете изменить артикул вручную).
+      </p>
+      <div class="help-image-placeholder">
+        <img src="images/add.png" alt="">
+      </div>
+    </div>
+
+    <!-- ПУНКТ 3 -->
+    <div class="help-section">
+      <h3>3. Как вписывать размеры</h3>
+      <p>
+        В полях <b>«Размеры нетто»</b> и <b>«Размеры брутто»</b>
+        пишите числа через пробел, например: <code>12 12 12</code>.
+        При экспорте в .docx пробелы автоматически заменятся на
+        <code> x </code>, и получится: <code>12 x 12 x 12</code>.
+      </p>
+      <div class="help-image-placeholder">
+        <img src="images/help-sizes.png" alt="">
+      </div>
+    </div>
+
+    <!-- ПУНКТ 4 -->
+    <!-- <div class="help-section">
+      <h3>4. Заголовок и артикул — одно и то же</h3>
+      <p>
+        Когда вы создаёте новый товар, его <b>название</b> (в шапке карточки)
+        автоматически копируется в поле <b>«Артикул»</b>.
+        Если вы измените название позже — артикул обновится вместе с ним,
+        <i>только если вы ещё не редактировали артикул вручную</i>.
+        Если артикул был изменён вручную — он останется таким, как вы его ввели.
+      </p>
+      <div class="help-image-placeholder">
+        <!-- Вставьте сюда: <img src="images/help-title-article.png" alt=""> -->
+      <!-- </div>
+    </div> -->
+
+    <!-- ===== ДОБАВЛЯЙТЕ НОВЫЕ ПУНКТЫ СЮДА =====
+    <div class="help-section">
+      <h3>5. Ваш новый пункт</h3>
+      <p>Текст пункта...</p>
+      <div class="help-image-placeholder">
+        <img src="images/help-new.png" alt="">
+      </div>
+    </div>
+    ============================================ -->
+
+    <div class="help-close-wrap">
+      <button class="clear-btn" onclick="closeHelp()">
+        <i data-lucide="x"></i> Закрыть
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= СОСТОЯНИЕ ================= */
+const state = {
+  headerImage: null,
+  headerTitle: 'Техническое описание',
+  products: []
+};
+let productCounter = 0;
+
+/* ================= LOCAL STORAGE ================= */
+const LS_KEY = 'docxGenState_v2';
+
+function saveState() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn('Не удалось сохранить в localStorage:', e);
+    alert('⚠ Не удалось сохранить данные. Возможно, хранилище переполнено из-за больших изображений.');
+  }
+}
+
+function loadState() {
+  const raw = localStorage.getItem(LS_KEY);
+  if (!raw) return;
+  try {
+    const loaded = JSON.parse(raw);
+    if (loaded.headerImage) state.headerImage = loaded.headerImage;
+    if (loaded.headerTitle) state.headerTitle = loaded.headerTitle;
+    if (Array.isArray(loaded.products)) state.products = loaded.products;
+    productCounter = state.products.length;
+  } catch (e) {
+    console.warn('Ошибка чтения localStorage:', e);
+  }
+}
+
+/* ================= УТИЛИТЫ ================= */
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function loadImageDims(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.width, height: img.height });
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+function dataUrlToUint8(dataUrl) {
+  const base64 = dataUrl.split(',')[1];
+  const bin = atob(base64);
+  const buf = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  return buf;
+}
+function mimeFromDataUrl(dataUrl) {
+  const m = dataUrl.match(/^data:([^;]+);/);
+  return m ? m[1] : 'image/png';
+}
+function fitSize(w, h, maxWpx) {
+  if (w <= maxWpx) return { w, h };
+  const k = maxWpx / w;
+  return { w: maxWpx, h: Math.round(h * k) };
+}
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function formatSize(s) {
+  if (!s || !String(s).trim()) return '';
+  return String(s).trim().split(/\s+/).join(' x ');
+}
+
+function refreshIcons() {
+  if (window.lucide && typeof lucide.createIcons === 'function') {
+    lucide.createIcons();
+  }
+}
+
+/* ================= ШАПКА ================= */
+document.getElementById('headerImage').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const dataUrl = await fileToDataUrl(file);
+  const dims = await loadImageDims(dataUrl);
+  state.headerImage = { dataUrl, width: dims.width, height: dims.height, type: mimeFromDataUrl(dataUrl) };
+  const prev = document.getElementById('headerPreview');
+  prev.src = dataUrl;
+  prev.style.display = 'block';
+  saveState();
+});
+
+document.getElementById('headerTitle').addEventListener('input', (e) => {
+  state.headerTitle = e.target.value;
+  saveState();
+});
+
+/* ================= ТОВАРЫ ================= */
+function addProduct() {
+  productCounter++;
+  const last = state.products[state.products.length - 1];
+  const defaultName = 'Товар ' + productCounter;
+  const product = {
+    id: Date.now() + '_' + productCounter,
+    name: defaultName,
+    article: defaultName,
+    productName: '',
+    brand: '',
+    manufacturer: last ? (last.manufacturer || '') : '',
+    country: '',
+    imageData: null,
+    description: '',
+    characteristics: '',
+    color: '',
+    sizeNetto: '',
+    sizeBrutto: '',
+    weightNetto: '',
+    weightBrutto: ''
+  };
+  state.products.push(product);
+  renderProducts();
+  saveState();
+}
+
+function removeProduct(id) {
+  if (!confirm('Удалить этот товар?')) return;
+  state.products = state.products.filter(p => p.id !== id);
+  renderProducts();
+  saveState();
+}
+
+function updateProduct(id, field, value) {
+  const p = state.products.find(p => p.id === id);
+  if (!p) return;
+  p[field] = value;
+  saveState();
+}
+
+function updateProductName(id, newName) {
+  const p = state.products.find(p => p.id === id);
+  if (!p) return;
+  const oldName = p.name;
+  p.name = newName;
+  if (!p.article || p.article === oldName) {
+    p.article = newName;
+  }
+  renderProducts();
+  saveState();
+}
+
+function updateArticle(id, value) {
+  const p = state.products.find(p => p.id === id);
+  if (!p) return;
+  p.article = value;
+  saveState();
+}
+
+async function handleProductImage(id, file) {
+  if (!file) return;
+  const dataUrl = await fileToDataUrl(file);
+  const dims = await loadImageDims(dataUrl);
+  const p = state.products.find(p => p.id === id);
+  p.imageData = { dataUrl, width: dims.width, height: dims.height, type: mimeFromDataUrl(dataUrl) };
+  renderProducts();
+  saveState();
+}
+
+function clearAll() {
+  if (!confirm('Удалить все товары и шапку? Это действие нельзя отменить.')) return;
+  state.headerImage = null;
+  state.headerTitle = 'Техническое описание';
+  state.products = [];
+  productCounter = 0;
+  document.getElementById('headerPreview').style.display = 'none';
+  document.getElementById('headerTitle').value = state.headerTitle;
+  document.getElementById('headerImage').value = '';
+  renderProducts();
+  saveState();
+}
+
+function renderProducts() {
+  const container = document.getElementById('products');
+  if (state.products.length === 0) {
+    container.innerHTML = '<div class="empty">Пока нет ни одного товара. Нажмите «Добавить товар».</div>';
+    return;
+  }
+  container.innerHTML = '';
+  state.products.forEach((p) => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="product-header">
+        <input class="product-title-input" type="text" value="${escapeHtml(p.name)}"
+               onchange="updateProductName('${p.id}', this.value)"
+               placeholder="Название товара">
+        <button class="delete-btn" onclick="removeProduct('${p.id}')">
+          <i data-lucide="trash-2"></i> Удалить
+        </button>
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Артикул:</label>
+        <input type="text" value="${escapeHtml(p.article)}"
+               oninput="updateArticle('${p.id}', this.value)"
+               placeholder="По умолчанию = названию товара">
+        <div class="hint">При экспорте — в верхнем регистре.</div>
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Наименование:</label>
+        <input type="text" value="${escapeHtml(p.productName)}"
+               oninput="updateProduct('${p.id}', 'productName', this.value)"
+               placeholder="Полное наименование">
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Марка (бренд):</label>
+        <input type="text" value="${escapeHtml(p.brand)}"
+               oninput="updateProduct('${p.id}', 'brand', this.value)"
+               placeholder="Например: JET">
+        <div class="hint">При экспорте — в верхнем регистре.</div>
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Производитель:</label>
+        <textarea rows="4" placeholder="FOSHAN DROME DAI IMPORT AND EXPORT CO., LTD&#10;..."
+                  oninput="updateProduct('${p.id}', 'manufacturer', this.value)">${escapeHtml(p.manufacturer)}</textarea>
+        <div class="hint">При экспорте — в верхнем регистре. Копируется из предыдущего товара.</div>
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Страна:</label>
+        <select onchange="updateProduct('${p.id}', 'country', this.value)">
+          <option value="" ${!p.country ? 'selected' : ''}>— не указана —</option>
+          <option value="Китай" ${p.country==='Китай' ? 'selected' : ''}>Китай</option>
+          <option value="США" ${p.country==='США' ? 'selected' : ''}>США</option>
+          <option value="Германия" ${p.country==='Германия' ? 'selected' : ''}>Германия</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Изображение товара:</label>
+        <input type="file" accept="image/*"
+               onchange="handleProductImage('${p.id}', this.files[0])">
+      </div>
+      ${p.imageData ? `<img src="${p.imageData.dataUrl}" class="preview-img">` : ''}
+
+      <div class="row">
+        <label class="fm-label">Текстовое описание:</label>
+        <textarea rows="5" placeholder="Описание товара..."
+                  oninput="updateProduct('${p.id}', 'description', this.value)">${escapeHtml(p.description)}</textarea>
+        <div class="hint">Каждый абзац — отдельный параграф в документе.</div>
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Характеристики:</label>
+        <textarea rows="5" placeholder="Мощность: 100 Вт&#10;Напряжение: 220 В&#10;..."
+                  oninput="updateProduct('${p.id}', 'characteristics', this.value)">${escapeHtml(p.characteristics)}</textarea>
+        <div class="hint">Каждая строка — отдельный пункт маркированного списка.</div>
+      </div>
+
+      <div class="row">
+        <label class="fm-label">Цвет:</label>
+        <input type="text" value="${escapeHtml(p.color)}"
+               oninput="updateProduct('${p.id}', 'color', this.value)">
+      </div>
+      <div class="row">
+        <label class="fm-label">Размеры нетто (см):</label>
+        <input type="text" value="${escapeHtml(p.sizeNetto)}"
+               oninput="updateProduct('${p.id}', 'sizeNetto', this.value)"
+               placeholder="12 12 12 → при экспорте: 12 x 12 x 12">
+      </div>
+      <div class="row">
+        <label class="fm-label">Размеры брутто (см):</label>
+        <input type="text" value="${escapeHtml(p.sizeBrutto)}"
+               oninput="updateProduct('${p.id}', 'sizeBrutto', this.value)"
+               placeholder="15 15 15">
+      </div>
+      <div class="row">
+        <label class="fm-label">Вес нетто (кг):</label>
+        <input type="text" value="${escapeHtml(p.weightNetto)}"
+               oninput="updateProduct('${p.id}', 'weightNetto', this.value)">
+      </div>
+      <div class="row">
+        <label class="fm-label">Вес брутто (кг):</label>
+        <input type="text" value="${escapeHtml(p.weightBrutto)}"
+               oninput="updateProduct('${p.id}', 'weightBrutto', this.value)">
+        <div class="hint">Эти 5 полей попадут в документ только если заполнены.</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+  refreshIcons();
+}
+
+/* ================= МОДАЛКА СПРАВКИ ================= */
+function openHelp() {
+  document.getElementById('helpModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  refreshIcons();
+}
+function closeHelp() {
+  document.getElementById('helpModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+// Закрытие по Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeHelp();
+});
+
+/* ================= АНИМАЦИЯ ЧАСТИЦ ================= */
+function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  const particles = [];
+  const PARTICLE_COUNT = 60;
+  const MAX_DIST = 130;
+
+  // Цвета FM-палитры
+  const colors = [
+    'rgba(3, 218, 198, ',   // teal (--fm-accent)
+    'rgba(187, 134, 252, ', // purple (--fm-accent-secondary)
+    'rgba(207, 102, 121, ', // pink (--fm-pink)
+  ];
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+
+  function createParticle() {
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 2 + 1,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: Math.random() * 0.5 + 0.2
+    };
+  }
+
+  function init() {
+    resize();
+    particles.length = 0;
+    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(createParticle());
+  }
+
+  function step() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Движение и отрисовка частиц
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > width) p.vx *= -1;
+      if (p.y < 0 || p.y > height) p.vy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + p.alpha + ')';
+      ctx.fill();
+    }
+
+    // Соединительные линии между близкими частицами
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const a = particles[i], b = particles[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MAX_DIST) {
+          const alpha = (1 - dist / MAX_DIST) * 0.15;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = 'rgba(3, 218, 198, ' + alpha + ')';
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  window.addEventListener('resize', resize);
+  init();
+  step();
+}
+
+/* ================= ЭКСПОРТ В DOCX ================= */
+async function exportDocx() {
+  const { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType } = docx;
+
+  const children = [];
+
+  if (state.headerImage) {
+    const { w, h } = fitSize(state.headerImage.width, state.headerImage.height, 550);
+    children.push(new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [
+        new ImageRun({
+          data: dataUrlToUint8(state.headerImage.dataUrl),
+          transformation: { width: w, height: h },
+          type: state.headerImage.type.includes('png') ? 'png' : 'jpg'
+        })
+      ]
+    }));
+  }
+
+  const titleText = (state.headerTitle || '').trim() || 'Техническое описание';
+  children.push(new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 240, after: 240 },
+    children: [new TextRun({ text: titleText, bold: true, size: 32, font: 'Arial' })]
+  }));
+
+  if (state.products.length === 0) {
+    children.push(new Paragraph({ children: [new TextRun('Нет товаров для экспорта.')] }));
+  }
+
+  state.products.forEach((p, idx) => {
+    const topSpace = idx === 0 ? 0 : 480;
+
+    const articleText = (p.article || '').trim();
+    if (articleText) {
+      children.push(new Paragraph({
+        spacing: { before: topSpace, after: 80 },
+        children: [
+          new TextRun({ text: 'Артикул: ', bold: true, font: 'Arial', size: 22 }),
+          new TextRun({ text: articleText.toUpperCase(), font: 'Arial', size: 22 })
+        ]
+      }));
+    } else if (topSpace > 0) {
+      children.push(new Paragraph({ spacing: { before: topSpace }, children: [] }));
+    }
+
+    const productNameText = (p.productName || '').trim();
+    if (productNameText) {
+      children.push(new Paragraph({
+        spacing: { after: 80 },
+        children: [
+          new TextRun({ text: 'Наименование: ', bold: true, font: 'Arial', size: 22 }),
+          new TextRun({ text: productNameText, font: 'Arial', size: 22 })
+        ]
+      }));
+    }
+
+    const brandText = (p.brand || '').trim();
+    if (brandText) {
+      children.push(new Paragraph({
+        spacing: { after: 80 },
+        children: [
+          new TextRun({ text: 'Марка (бренд): ', bold: true, font: 'Arial', size: 22 }),
+          new TextRun({ text: brandText.toUpperCase(), font: 'Arial', size: 22 })
+        ]
+      }));
+    }
+
+    const mfrText = (p.manufacturer || '').trim();
+    if (mfrText) {
+      const lines = mfrText.split(/\n/).map(s => s.trim()).filter(Boolean);
+      lines.forEach((line, i) => {
+        children.push(new Paragraph({
+          spacing: { after: 60 },
+          children: [
+            ...(i === 0 ? [new TextRun({ text: 'Производитель: ', bold: true, font: 'Arial', size: 22 })] : []),
+            new TextRun({ text: line.toUpperCase(), font: 'Arial', size: 22 })
+          ]
+        }));
+      });
+    }
+
+    const countryText = (p.country || '').trim();
+    if (countryText) {
+      children.push(new Paragraph({
+        spacing: { after: 80 },
+        children: [
+          new TextRun({ text: 'Страна: ', bold: true, font: 'Arial', size: 22 }),
+          new TextRun({ text: countryText, font: 'Arial', size: 22 })
+        ]
+      }));
+    }
+
+    if (p.imageData) {
+      const { w, h } = fitSize(p.imageData.width, p.imageData.height, 350);
+      children.push(new Paragraph({
+        spacing: { before: 120, after: 120 },
+        children: [
+          new ImageRun({
+            data: dataUrlToUint8(p.imageData.dataUrl),
+            transformation: { width: w, height: h },
+            type: p.imageData.type.includes('png') ? 'png' : 'jpg'
+          })
+        ]
+      }));
+    }
+
+    if ((p.description || '').trim()) {
+      const paragraphs = p.description.split(/\n+/).filter(s => s.trim());
+      for (const para of paragraphs) {
+        children.push(new Paragraph({
+          spacing: { after: 100 },
+          children: [new TextRun({ text: para, font: 'Arial', size: 22 })]
+        }));
+      }
+    }
+
+    if ((p.characteristics || '').trim()) {
+      const items = p.characteristics.split(/\n/).map(s => s.trim()).filter(Boolean);
+      for (const item of items) {
+        children.push(new Paragraph({
+          bullet: { level: 0 },
+          spacing: { after: 40 },
+          children: [new TextRun({ text: item, font: 'Arial', size: 22 })]
+        }));
+      }
+    }
+
+    const sizeNettoFmt = formatSize(p.sizeNetto);
+    const sizeBruttoFmt = formatSize(p.sizeBrutto);
+
+    const extra = [
+      { label: 'Цвет', value: p.color },
+      { label: 'Размеры нетто (см)', value: sizeNettoFmt },
+      { label: 'Размеры брутто (см)', value: sizeBruttoFmt },
+      { label: 'Вес нетто (кг)', value: p.weightNetto },
+      { label: 'Вес брутто (кг)', value: p.weightBrutto }
+    ].filter(x => x.value && String(x.value).trim());
+
+    if (extra.length) {
+      for (const x of extra) {
+        children.push(new Paragraph({
+          bullet: { level: 0 },
+          spacing: { after: 40 },
+          children: [
+            new TextRun({ text: x.label + ': ', bold: true, font: 'Arial', size: 22 }),
+            new TextRun({ text: String(x.value).trim(), font: 'Arial', size: 22 })
+          ]
+        }));
+      }
+    }
+  });
+
+  const doc = new Document({
+    sections: [{ properties: {}, children }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, 'technical_descriptions.docx');
+}
+
+/* ================= ИНИЦИАЛИЗАЦИЯ ================= */
+window.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  if (state.headerImage) {
+    const prev = document.getElementById('headerPreview');
+    prev.src = state.headerImage.dataUrl;
+    prev.style.display = 'block';
+  }
+  document.getElementById('headerTitle').value = state.headerTitle || 'Техническое описание';
+  renderProducts();
+  refreshIcons();
+  initParticles();
+});
+</script>
+</body>
+</html>
