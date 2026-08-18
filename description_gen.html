@@ -19,12 +19,39 @@
             --fm-block: #2a2a2a;
             --fm-input: #2d2d2d;
             --fm-border: #444;
-            --fm-accent: #03DAC6;          /* бирюзовый */
-            --fm-accent-secondary: #BB86FC; /* фиолетовый */
-            --fm-pink: #CF6679;            /* розовый */
+            --fm-accent: #03DAC6;
+            --fm-accent-secondary: #BB86FC;
+            --fm-pink: #CF6679;
             --fm-text: #E0E0E0;
             --fm-text-secondary: #AAA;
             --font-primary: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* === Кастомный скроллбар в FM-стиле === */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--fm-bg);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--fm-accent), var(--fm-accent-secondary));
+            border-radius: 5px;
+            border: 2px solid var(--fm-bg);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--fm-accent-secondary), var(--fm-pink));
+            box-shadow: 0 0 8px rgba(3, 218, 198, 0.5);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--fm-accent) var(--fm-bg);
         }
 
         /* === Сброс стилей и общие настройки === */
@@ -41,7 +68,6 @@
             min-height: 100vh;
             padding: 20px;
             position: relative;
-            overflow: hidden;
         }
 
         /* === Фон с анимированными частицами (Verter_FM) === */
@@ -122,7 +148,7 @@
             margin-bottom: 8px;
         }
 
-        /* === Стили полей ввода (уменьшенный шрифт до 14px) === */
+        /* === Стили полей ввода === */
         input, textarea, select {
             width: 100%;
             padding: 12px 15px;
@@ -146,8 +172,9 @@
             min-height: 80px;
         }
 
-        /* === Сетка для технических характеристик (цвет и страна) === */
-        .specs-grid {
+        /* === Сетки для технических характеристик === */
+        .specs-grid,
+        .specs-grid-compact {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
@@ -216,7 +243,8 @@
 
         /* === Адаптивность для мобильных устройств === */
         @media (max-width: 768px) {
-            .specs-grid {
+            .specs-grid,
+            .specs-grid-compact {
                 grid-template-columns: 1fr;
             }
             .buttons {
@@ -224,7 +252,7 @@
             }
         }
 
-        /* === Стили для SVG-иконок (Lucide-подобный стиль) === */
+        /* === Стили для SVG-иконок === */
         svg {
             width: 18px;
             height: 18px;
@@ -243,37 +271,82 @@
     <!-- Основная форма приложения -->
     <div class="container">
         <div class="header">
-            <!-- Заголовок с анимацией появления -->
             <h1 id="main-title" class="fade-in-title">Стандартизация описаний товаров</h1>
             <p>Заполните информацию о товаре для создания стандартизированного описания</p>
         </div>
 
         <div class="form-container">
-            <!-- Поле: Заголовок -->
+            <!-- 1. Заголовок -->
             <div class="form-group">
                 <label for="title">Заголовок</label>
                 <input type="text" id="title" placeholder="Введите название товара">
             </div>
 
-            <!-- Поле: Вступительная часть -->
+            <!-- 2. Слоган -->
             <div class="form-group">
-                <label for="intro">Вступительная часть</label>
-                <textarea id="intro" placeholder="Введите краткое описание товара" rows="3"></textarea>
+                <label for="slogan">Слоган</label>
+                <div class="hint">1-2 строки про стиль, звук и выгоду по цене</div>
+                <textarea id="slogan" placeholder="Введите слоган" rows="2"></textarea>
             </div>
 
-            <!-- Поле: Основные характеристики -->
+            <!-- 3. Целевая аудитория (список) -->
             <div class="form-group">
-                <label for="mainFeatures">Основные характеристики</label>
+                <label for="targetAudience">Целевая аудитория</label>
+                <div class="hint">Для кого подойдет. Каждая аудитория с новой строки</div>
+                <textarea id="targetAudience" placeholder="Например: начинающим музыкантам" rows="4"></textarea>
+            </div>
+
+            <!-- 4. Ключевые характеристики (список) -->
+            <div class="form-group">
+                <label for="mainFeatures">Ключевые характеристики</label>
                 <div class="hint">Каждая характеристика с новой строки</div>
-                <textarea id="mainFeatures" placeholder="Введите основные характеристики товара" rows="4"></textarea>
+                <textarea id="mainFeatures" placeholder="Введите ключевые характеристики товара" rows="4"></textarea>
             </div>
 
-            <!-- Поле: Технические характеристики + выпадающие списки -->
+            <!-- 5. Преимущества (список) -->
+            <div class="form-group">
+                <label for="advantages">Преимущества</label>
+                <div class="hint">Почему этот товар лучше, чем аналоги. Каждое преимущество с новой строки</div>
+                <textarea id="advantages" placeholder="Введите преимущества" rows="4"></textarea>
+            </div>
+
+            <!-- 6. Сценарии использования (обычное поле) -->
+            <div class="form-group">
+                <label for="scenarios">Сценарии использования</label>
+                <div class="hint">Опишите как и где использовать</div>
+                <textarea id="scenarios" placeholder="Введите сценарии использования" rows="3"></textarea>
+            </div>
+
+            <!-- 7. Технические характеристики + все поля-атрибуты -->
             <div class="form-group">
                 <label for="techSpecs">Технические характеристики</label>
                 <div class="hint">Каждая характеристика с новой строки</div>
                 <textarea id="techSpecs" placeholder="Введите технические характеристики товара" rows="4"></textarea>
 
+                <!-- Новые поля: размеры и вес -->
+                <div class="specs-grid-compact">
+                    <div class="spec-item">
+                        <label for="size">Размер (см)</label>
+                        <input type="text" id="size" placeholder="Например: 10 12 15">
+                    </div>
+
+                    <div class="spec-item">
+                        <label for="netWeight">Вес нетто (кг)</label>
+                        <input type="text" id="netWeight" placeholder="Например: 1.5">
+                    </div>
+
+                    <div class="spec-item">
+                        <label for="packageSize">Размер упаковки (см)</label>
+                        <input type="text" id="packageSize" placeholder="Например: 20 25 30">
+                    </div>
+
+                    <div class="spec-item">
+                        <label for="grossWeight">Вес брутто (кг)</label>
+                        <input type="text" id="grossWeight" placeholder="Например: 2.0">
+                    </div>
+                </div>
+
+                <!-- Поля: цвет и страна происхождения -->
                 <div class="specs-grid">
                     <div class="spec-item">
                         <label for="color">Цвет</label>
@@ -289,6 +362,26 @@
                         </select>
                     </div>
                 </div>
+            </div>
+
+            <!-- 8. Комплектация (список) -->
+            <div class="form-group">
+                <label for="package">Комплектация</label>
+                <div class="hint">Каждая характеристика с новой строки</div>
+                <textarea id="package" placeholder="Введите комплектацию" rows="4"></textarea>
+            </div>
+
+            <!-- 9. FAQ (список) -->
+            <div class="form-group">
+                <label for="faq">FAQ</label>
+                <div class="hint">Частые вопросы. Каждый вопрос с новой строки</div>
+                <textarea id="faq" placeholder="Введите часто задаваемые вопросы" rows="4"></textarea>
+            </div>
+
+            <!-- 10. Призыв к действию (обычное поле) -->
+            <div class="form-group">
+                <label for="callToAction">Призыв к действию</label>
+                <textarea id="callToAction" placeholder="Например: Закажите сейчас и получите скидку!" rows="2"></textarea>
             </div>
 
             <!-- Кнопка копирования -->
@@ -405,15 +498,12 @@
 
     <!-- === Основная логика приложения + анимация заголовка === -->
     <script>
-        // === Анимация заголовка: добавляем класс .visible после загрузки ===
         document.addEventListener('DOMContentLoaded', function() {
-            // Запускаем анимацию заголовка с небольшой задержкой
             setTimeout(() => {
                 const title = document.getElementById('main-title');
                 if (title) title.classList.add('visible');
             }, 300);
 
-            // === Остальная логика приложения ===
             let config = {
                 colors: ["Красный", "Синий", "Зеленый", "Черный", "Белый", "Серый"],
                 countries: ["Россия", "Китай", "Германия", "США", "Япония", "Италия"]
@@ -467,29 +557,82 @@
                           .join('\n');
             }
 
+            // Преобразует размеры "10 12 15" в "10 x 12 x 15"
+            function formatDimensions(value) {
+                if (!value || !value.trim()) return '';
+                return value.trim().split(/\s+/).join(' x ');
+            }
+
             function copyToClipboard() {
                 const title = document.getElementById('title').value.trim();
-                const intro = document.getElementById('intro').value.trim();
+                const slogan = document.getElementById('slogan').value.trim();
+                const targetAudience = document.getElementById('targetAudience').value.trim();
                 const mainFeatures = document.getElementById('mainFeatures').value.trim();
+                const advantages = document.getElementById('advantages').value.trim();
+                const scenarios = document.getElementById('scenarios').value.trim();
                 const techSpecs = document.getElementById('techSpecs').value.trim();
+                const size = document.getElementById('size').value.trim();
+                const netWeight = document.getElementById('netWeight').value.trim();
+                const packageSize = document.getElementById('packageSize').value.trim();
+                const grossWeight = document.getElementById('grossWeight').value.trim();
                 const color = document.getElementById('color').value;
                 const country = document.getElementById('country').value;
+                const packageContent = document.getElementById('package').value.trim();
+                const faq = document.getElementById('faq').value.trim();
+                const callToAction = document.getElementById('callToAction').value.trim();
 
                 const resultParts = [];
+
                 if (title) resultParts.push(title);
-                if (intro) resultParts.push(intro);
+                if (slogan) resultParts.push(slogan);
+
+                if (targetAudience) {
+                    resultParts.push('Целевая аудитория:');
+                    resultParts.push(formatAsBullets(targetAudience));
+                }
+
                 if (mainFeatures) {
-                    resultParts.push('Основные характеристики:');
+                    resultParts.push('Ключевые характеристики:');
                     resultParts.push(formatAsBullets(mainFeatures));
                 }
 
+                if (advantages) {
+                    resultParts.push('Преимущества:');
+                    resultParts.push(formatAsBullets(advantages));
+                }
+
+                if (scenarios) {
+                    resultParts.push('Сценарии использования:');
+                    resultParts.push(scenarios);
+                }
+
+                // Технические характеристики + все атрибуты
                 const techParts = [];
                 if (techSpecs) techParts.push(formatAsBullets(techSpecs));
+                if (size) techParts.push(`• Размер (см): ${formatDimensions(size)}`);
+                if (netWeight) techParts.push(`• Вес нетто (кг): ${netWeight}`);
+                if (packageSize) techParts.push(`• Размер упаковки (см): ${formatDimensions(packageSize)}`);
+                if (grossWeight) techParts.push(`• Вес брутто (кг): ${grossWeight}`);
                 if (color) techParts.push(`• Цвет: ${color}`);
                 if (country) techParts.push(`• Страна происхождения: ${country}`);
+
                 if (techParts.length > 0) {
                     resultParts.push('Технические характеристики:');
                     resultParts.push(techParts.join('\n'));
+                }
+
+                if (packageContent) {
+                    resultParts.push('Комплектация:');
+                    resultParts.push(formatAsBullets(packageContent));
+                }
+
+                if (faq) {
+                    resultParts.push('FAQ:');
+                    resultParts.push(formatAsBullets(faq));
+                }
+
+                if (callToAction) {
+                    resultParts.push(callToAction);
                 }
 
                 if (resultParts.length === 0) {
@@ -514,7 +657,6 @@
                 setTimeout(() => toast.classList.remove('show'), 3000);
             }
 
-            // Загружаем конфиг и вешаем обработчик на кнопку
             loadConfig();
             document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
         });
